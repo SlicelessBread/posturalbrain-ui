@@ -282,3 +282,193 @@ html:has(> .pb-app) {
   background: var(--accent-soft);
   color: var(--accent);
 }
+
+.pb-dot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+}
+
+.pb-icon-btn > .pb-dot {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  box-shadow: 0 0 0 2px var(--bg-1);
+}
+
+/* ---------- Navigation ---------- */
+
+/* A screen-shaped box: fixed bars and overlays inside it stay inside it.
+   Used by the documentation and wherever a screen is embedded in a larger layout. */
+.pb-frame {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--pb-gradient-ground);
+}
+
+.pb-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: calc(var(--bar-h) + var(--pb-safe-top));
+  padding: var(--pb-safe-top) var(--space-2) 0 var(--space-4);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--bar);
+  -webkit-backdrop-filter: var(--blur-bar);
+  backdrop-filter: var(--blur-bar);
+}
+
+.pb-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.pb-topbar__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--pb-gradient-accent);
+  color: var(--on-accent);
+}
+
+.pb-topbar__actions { display: flex; align-items: center; gap: var(--space-1); }
+
+.pb-bottomnav {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 20;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  min-height: calc(var(--nav-h) + var(--pb-safe-bottom));
+  padding: 0 var(--space-1) var(--pb-safe-bottom);
+  border-top: 1px solid var(--glass-border);
+  background: var(--bar);
+  -webkit-backdrop-filter: var(--blur-bar);
+  backdrop-filter: var(--blur-bar);
+}
+
+.pb-bottomnav > a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: var(--nav-h);
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pb-bottomnav > a > .pb-icon {
+  box-sizing: content-box;
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-pill);
+  transition: background-color var(--pb-duration) var(--pb-ease);
+}
+
+.pb-bottomnav > a > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pb-bottomnav > a[aria-current="page"] { color: var(--accent); }
+.pb-bottomnav > a[aria-current="page"] > .pb-icon { background: var(--accent-soft); }
+.pb-bottomnav > a:focus-visible { outline-offset: -4px; }
+
+.pb-tabs {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--glass-border);
+  scrollbar-width: none;
+}
+
+.pb-tabs::-webkit-scrollbar { display: none; }
+
+.pb-tabs > [role="tab"] {
+  flex: none;
+  min-height: var(--tap-min);
+  margin-bottom: -1px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pb-tabs > [role="tab"][aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.pb-tabs > [role="tab"]:focus-visible { outline-offset: -3px; }
+
+.pb-page-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.pb-page-head__back { margin-left: calc(-1 * var(--space-2)); }
+
+.pb-page-head__text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+  padding-top: 7px;
+}
+
+.pb-page-head__title { overflow-wrap: anywhere; }
+.pb-page-head__sub { color: var(--text-2); }
+.pb-page-head__actions { display: flex; flex: none; gap: var(--space-2); }
+
+.pb-period {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.pb-period__label {
+  display: grid;
+  flex: 1;
+  justify-items: center;
+  min-width: 0;
+  text-align: center;
+}
+
+.pb-period--week .pb-period__label {
+  justify-items: start;
+  text-align: left;
+}

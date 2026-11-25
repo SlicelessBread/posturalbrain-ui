@@ -74,7 +74,7 @@ export async function renderCheck({ projectDir, widths = [390, 320], only, outDi
           await page.setContent(html, { waitUntil: 'load' });
           errors.push(...(await page.evaluate(inspect)));
           const screenshot = path.join(outDir, `${component}-${theme}-${width}.png`);
-          await page.screenshot({ path: screenshot, fullPage: true });
+          await page.locator('body').screenshot({ path: screenshot });
           await page.keyboard.press('Tab');
           const ring = await page.evaluate(focusRing);
           if (ring) errors.push(ring);
