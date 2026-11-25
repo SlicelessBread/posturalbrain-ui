@@ -123,12 +123,15 @@ html:has(> .pb-app) {
 .pb-subtle { color: var(--text-3); }
 .pb-num { font-variant-numeric: tabular-nums; }
 
-.pb-glass {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: inset 0 1px 0 var(--glass-highlight);
+/* The scrolling content of a screen: side margins and room for the bottom bar. */
+.pb-page {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-4) calc(var(--nav-h) + var(--pb-safe-bottom) + var(--space-6));
 }
+
+.pb-page > * { min-width: 0; }
 
 /* ---------- Actions ---------- */
 

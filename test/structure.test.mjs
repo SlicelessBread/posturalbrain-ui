@@ -79,3 +79,31 @@ test('every pb- class and text style used in a preview is defined', () => {
   }
   assert.deepEqual([...new Set(missing)], []);
 });
+
+test('the brand book is usage rules: no title, and it names tokens and classes', () => {
+  const readme = read(PROJECT, 'README.md');
+  assert.doesNotMatch(readme.trimStart(), /^# /);
+  assert.match(readme, /`--accent`/);
+  assert.match(readme, /`\.?pb-btn/);
+  assert.match(readme, /## Aggiunte volute/);
+});
+
+test('every icon in assets/Icone is used by a preview, and the brand assets are present', () => {
+  const used = new Set(dirs.flatMap((d) => [...read(SOURCES, `${d}.html`).matchAll(/\{\{icon:([a-z0-9-]+)/g)].map((m) => m[1])));
+  const icons = fs.readdirSync(path.join(PROJECT, 'assets/Icone')).filter((f) => f.endsWith('.svg')).map((f) => f.replace(/\.svg$/, ''));
+  assert.deepEqual(icons.filter((i) => !used.has(i)), []);
+  for (const f of ['assets/Icone/README.md', 'assets/Marchio/README.md', 'assets/Marchio/icon.svg', 'assets/Marchio/icon-512.png']) {
+    assert.ok(fs.existsSync(path.join(PROJECT, f)), f);
+  }
+});
+
+test('the three sample screens and the cover exist', () => {
+  for (const d of ['ScreenClientManager', 'ScreenSociAll', 'ScreenVideo', 'Cover']) assert.ok(dirs.includes(d), d);
+  for (const d of ['ScreenClientManager', 'ScreenSociAll', 'ScreenVideo']) assert.match(read(SOURCES, `${d}.html`).split('\n')[0], / page -->$/, d);
+});
+
+test('every component class in the stylesheet is shown in at least one preview', () => {
+  const used = new Set(dirs.flatMap((d) => [...read(COMPONENTS, d, 'preview.html').matchAll(/class="([^"]*)"/g)].flatMap((m) => m[1].split(/\s+/))));
+  const defined = [...new Set([...bundle.matchAll(/\.(pb-[a-z0-9_-]+)/g)].map((m) => m[1]))];
+  assert.deepEqual(defined.filter((c) => !used.has(c)), []);
+});

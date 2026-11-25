@@ -20,6 +20,7 @@ export function buildPreview(source, name, icon) {
   const body = rest.join('\n').trim().replace(/\{\{icon:([a-z0-9-]+)(?::(sm|lg))?\}\}/g, (_, id, size) =>
     `<svg class="pb-icon${size ? ` pb-icon--${size}` : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon(id)}</svg>`);
   const page = / page -->$/.test(marker);
+  const bare = name === 'Cover'; // the cover paints its own ground, with no app chrome
   return `${marker}
 <!doctype html>
 <html lang="it">
@@ -29,7 +30,7 @@ export function buildPreview(source, name, icon) {
 <title>${name}</title>
 <link rel="stylesheet" href="${FONTS}">
 </head>
-<body class="pb-app${page ? '' : ' pb-app--inline'}">
+<body${bare ? ' style="margin: 0"' : ` class="pb-app${page ? '' : ' pb-app--inline'}"`}>
 ${body}
 </body>
 </html>
