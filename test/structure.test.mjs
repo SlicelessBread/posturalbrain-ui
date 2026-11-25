@@ -1,0 +1,65 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { buildPreview, loadIcon } from '../scripts/build-previews.mjs';
+
+const PROJECT = 'design-system/project';
+const COMPONENTS = path.join(PROJECT, 'components');
+const SOURCES = 'design-system/previews';
+const dirs = fs.readdirSync(COMPONENTS, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
+const read = (...p) => fs.readFileSync(path.join(...p), 'utf8');
+const bundle = read(COMPONENTS, 'bundle.css');
+const MARKER = /^<!-- @dsCard( group="[^"]+")?( height=\d+)?( width=\d+)?( subtitle="[^"]*")?( page)? -->$/;
+const BLUR_ALLOWED = ['.pb-topbar', '.pb-bottomnav', '.pb-sheet', '.pb-sheet-backdrop', '.pb-toast'];
+
+test('there is at least one component', () => {
+  assert.ok(dirs.length >= 1);
+});
+
+test('every component folder is an identifier with a preview and, except the cover, a guide', () => {
+  for (const d of dirs) {
+    assert.match(d, /^[A-Za-z][A-Za-z0-9]*$/, d);
+    const files = fs.readdirSync(path.join(COMPONENTS, d)).sort();
+    if (d === 'Cover') assert.deepEqual(files, ['preview.html'], 'Cover must stay bare');
+    else assert.deepEqual(files, ['README.md', 'preview.html'], d);
+  }
+});
+
+test('every preview starts with the card marker and uses no forbidden element', () => {
+  for (const d of dirs) {
+    const html = read(COMPONENTS, d, 'preview.html');
+    assert.match(html.split('\n')[0], MARKER, d);
+    assert.doesNotMatch(html, /<(iframe|frame|object|embed|portal|noscript)\b/i, d);
+  }
+});
+
+test('every preview is generated from its source fragment and is up to date', () => {
+  for (const d of dirs) {
+    const source = read(SOURCES, `${d}.html`);
+    assert.equal(read(COMPONENTS, d, 'preview.html'), buildPreview(source, d, loadIcon), `${d}: run npm run build:previews`);
+  }
+});
+
+test('colours come only from tokens: no literal colour, no theme selector, no recent colour function', () => {
+  const sources = [['bundle.css', bundle], ...dirs.map((d) => [d, read(SOURCES, `${d}.html`)])];
+  for (const [name, text] of sources) {
+    assert.doesNotMatch(text, /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(|light-dark\(|color-mix\(/i, name);
+    assert.doesNotMatch(text, /\[data-theme/, name);
+  }
+});
+
+test('backdrop-filter is used only on bars and overlays', () => {
+  for (const rule of bundle.match(/[^{}]+\{[^{}]*backdrop-filter[^{}]*\}/g) ?? []) {
+    const selector = rule.split('{')[0].trim().split('\n').pop().trim();
+    assert.ok(BLUR_ALLOWED.some((s) => selector === s || selector.startsWith(`${s},`) || selector.startsWith(`${s}:`) || selector.startsWith(`${s} `)), `blur on ${selector}`);
+  }
+});
+
+test('keyboard focus is visible and reduced motion is honoured', () => {
+  assert.match(bundle, /:focus-visible\s*\{[^}]*outline:[^}]*var\(--focus\)/);
+  const reduced = /@media \(prefers-reduced-motion: reduce\)\s*\{([\s\S]*?\})\s*\}/.exec(bundle);
+  assert.ok(reduced, 'missing reduced-motion block');
+  assert.match(reduced[1], /animation:\s*none\s*!important/);
+  assert.match(reduced[1], /transition:\s*none\s*!important/);
+});

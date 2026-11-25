@@ -7,6 +7,7 @@
   "scripts": {
     "test": "node --test \"test/*.test.mjs\"",
     "check:render": "node scripts/render-check.mjs",
-    "tokens:css": "node scripts/tokens-css.mjs"
+    "tokens:css": "node scripts/tokens-css.mjs",
+    "build:previews": "node scripts/build-previews.mjs"
   }
 }

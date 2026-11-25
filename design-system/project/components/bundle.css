@@ -1,0 +1,284 @@
+/* POSTURALBRAIN design system: component styles.
+   Every colour comes from tokens.css; themes change variables, never rules.
+   Real blur is reserved for bars and overlays: cards are translucent fills. */
+
+/* ---------- Base ---------- */
+
+:root {
+  --pb-duration-fast: 120ms;
+  --pb-duration: 200ms;
+  --pb-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --pb-gradient-ground: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 45%, var(--bg-2) 100%);
+  --pb-gradient-accent: linear-gradient(135deg, var(--accent-hi), var(--accent-strong));
+  --pb-safe-top: env(safe-area-inset-top, 0px);
+  --pb-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html:has(> .pb-app) {
+  height: 100%;
+}
+
+.pb-app {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+  margin: 0;
+  color: var(--text);
+  background: var(--pb-gradient-ground);
+  font-family: var(--font-text);
+  font-size: 16px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pb-app::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: -1;
+  height: 320px;
+  max-height: 100%;
+  background: radial-gradient(70% 100% at 50% 0%, var(--glow), transparent 72%);
+  pointer-events: none;
+}
+
+/* The app ground inside a box (documentation cards, embedded panels). */
+.pb-app--inline {
+  min-height: 0;
+  padding: var(--space-4);
+}
+
+.pb-app,
+.pb-app *,
+.pb-app *::before,
+.pb-app *::after {
+  box-sizing: border-box;
+}
+
+.pb-app :where(h1, h2, h3, h4, p, ul, ol, dl, dd, figure) {
+  margin: 0;
+}
+
+.pb-app :where(ul, ol) {
+  padding: 0;
+  list-style: none;
+}
+
+.pb-app :where(button, input, select, textarea) {
+  font: inherit;
+  color: inherit;
+}
+
+.pb-app :where(a) {
+  color: var(--accent);
+}
+
+.pb-app :focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@keyframes pb-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pb-pulse {
+  50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-app *, .pb-app *::before, .pb-app *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Layout helpers ---------- */
+
+.pb-stack { display: grid; gap: var(--space-4); align-content: start; min-width: 0; }
+.pb-stack--tight { gap: var(--space-2); }
+.pb-stack--loose { gap: var(--space-6); }
+.pb-stack > * { min-width: 0; }
+
+.pb-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; }
+.pb-row--between { justify-content: space-between; }
+.pb-row--nowrap { flex-wrap: nowrap; }
+
+.pb-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+
+.pb-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pb-icon { flex: none; width: 24px; height: 24px; }
+.pb-icon--sm { width: 18px; height: 18px; }
+.pb-icon--lg { width: 32px; height: 32px; }
+
+.pb-muted { color: var(--text-2); }
+.pb-subtle { color: var(--text-3); }
+.pb-num { font-variant-numeric: tabular-nums; }
+
+.pb-glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+/* ---------- Actions ---------- */
+
+.pb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-5);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-strong);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--pb-duration-fast) var(--pb-ease), opacity var(--pb-duration-fast) var(--pb-ease);
+}
+
+.pb-btn:active { transform: scale(0.98); }
+
+.pb-btn--primary {
+  border-color: transparent;
+  background: var(--pb-gradient-accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.pb-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--accent);
+}
+
+.pb-btn--danger {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.pb-btn--small {
+  padding: 0 var(--space-3);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.pb-btn--block { display: flex; width: 100%; }
+
+.pb-btn:disabled,
+.pb-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.pb-btn[aria-busy="true"] { pointer-events: none; }
+
+.pb-btn[aria-busy="true"]::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: pb-spin 700ms linear infinite;
+}
+
+.pb-icon-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: var(--glass-strong);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform var(--pb-duration-fast) var(--pb-ease);
+}
+
+.pb-icon-btn:active { transform: scale(0.94); }
+
+.pb-icon-btn--primary {
+  border-color: transparent;
+  background: var(--pb-gradient-accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.pb-icon-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.pb-segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass);
+}
+
+.pb-segmented > button {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--pb-duration) var(--pb-ease), color var(--pb-duration) var(--pb-ease);
+}
+
+.pb-segmented > button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.pb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: var(--glass);
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--pb-duration) var(--pb-ease), color var(--pb-duration) var(--pb-ease);
+}
+
+.pb-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
