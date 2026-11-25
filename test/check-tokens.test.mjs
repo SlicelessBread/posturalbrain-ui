@@ -17,6 +17,17 @@ test('contrast: black on white is 21, translucent colours are blended first', ()
   assert.ok(contrast('#ffffff', 'rgb(255 255 255 / 0.1)', '#000000') > 15);
 });
 
+test('contrast: a ground can sit on a stack of translucent layers', () => {
+  const direct = contrast('#ff0000', 'rgb(255 255 255 / 0.2)', '#000000');
+  const stacked = contrast('#ff0000', 'rgb(255 255 255 / 0.2)', ['rgb(255 255 255 / 0.5)', '#000000']);
+  assert.ok(stacked < direct, 'a lighter stack under the ground must lower the contrast of red text');
+});
+
+test('validateTokens rejects a composite value in a plain family', () => {
+  assert.match(validateTokens(ok({ blur: { tokens: [{ name: 'b', value: 'blur(22px) saturate(170%)', usage: 'u' }] } })).join(), /composite|single/i);
+  assert.deepEqual(validateTokens(ok({ blur: { tokens: [{ name: 'b', value: 'blur(22px)', usage: 'u' }] } })), []);
+});
+
 test('validateTokens accepts a minimal valid file', () => {
   assert.deepEqual(validateTokens(ok()), []);
 });
@@ -46,5 +57,6 @@ test('the real tokens are valid and every declared pair is legible in both theme
   assert.deepEqual(validateTokens(tokens), []);
   assert.deepEqual(tokens.color.themes.map((t) => t.id), ['dark', 'light']);
   assert.ok(pairs.length >= 20);
+  assert.ok(pairs.some((p) => Array.isArray(p.over)), 'tinted grounds on glass must be declared as stacks');
   assert.deepEqual(checkPairs(tokens, pairs), []);
 });

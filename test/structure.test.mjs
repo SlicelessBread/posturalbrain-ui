@@ -51,8 +51,8 @@ test('colours come only from tokens: no literal colour, no theme selector, no re
 
 test('backdrop-filter is used only on bars and overlays', () => {
   for (const rule of bundle.match(/[^{}]+\{[^{}]*backdrop-filter[^{}]*\}/g) ?? []) {
-    const selector = rule.split('{')[0].trim().split('\n').pop().trim();
-    assert.ok(BLUR_ALLOWED.some((s) => selector === s || selector.startsWith(`${s},`) || selector.startsWith(`${s}:`) || selector.startsWith(`${s} `)), `blur on ${selector}`);
+    const selectors = rule.split('{')[0].replace(/\/\*[\s\S]*?\*\//g, '').split(',').map((x) => x.trim()).filter(Boolean);
+    for (const selector of selectors) assert.ok(BLUR_ALLOWED.includes(selector), `blur on ${selector}`);
   }
 });
 
@@ -106,4 +106,9 @@ test('every component class in the stylesheet is shown in at least one preview',
   const used = new Set(dirs.flatMap((d) => [...read(COMPONENTS, d, 'preview.html').matchAll(/class="([^"]*)"/g)].flatMap((m) => m[1].split(/\s+/))));
   const defined = [...new Set([...bundle.matchAll(/\.(pb-[a-z0-9_-]+)/g)].map((m) => m[1]))];
   assert.deepEqual(defined.filter((c) => !used.has(c)), []);
+});
+
+test('the public previews use invented names only', () => {
+  for (const d of dirs) assert.doesNotMatch(read(SOURCES, `${d}.html`), /Rugarli/i, d);
+  assert.doesNotMatch(read(PROJECT, 'tokens.json') + read(PROJECT, 'README.md'), /Rugarli/i);
 });

@@ -10,6 +10,7 @@
   --pb-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --pb-gradient-ground: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 45%, var(--bg-2) 100%);
   --pb-gradient-accent: linear-gradient(135deg, var(--accent-hi), var(--accent-strong));
+  --pb-blur-bar: var(--blur-bar) saturate(170%);
   --pb-safe-top: env(safe-area-inset-top, 0px);
   --pb-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -24,7 +25,7 @@ html:has(> .pb-app) {
   min-height: 100%;
   margin: 0;
   color: var(--text);
-  background: var(--pb-gradient-ground);
+  background: var(--bg-1);
   font-family: var(--font-text);
   font-size: 16px;
   line-height: 24px;
@@ -33,9 +34,19 @@ html:has(> .pb-app) {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The ground and its glow are fixed layers: a gradient on the scrolling body would restart at every screen. */
 .pb-app::before {
   content: "";
-  position: absolute;
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: var(--pb-gradient-ground);
+  pointer-events: none;
+}
+
+.pb-app::after {
+  content: "";
+  position: fixed;
   inset: 0 0 auto 0;
   z-index: -1;
   height: 320px;
@@ -328,8 +339,8 @@ html:has(> .pb-app) {
   padding: var(--pb-safe-top) var(--space-2) 0 var(--space-4);
   border-bottom: 1px solid var(--glass-border);
   background: var(--bar);
-  -webkit-backdrop-filter: var(--blur-bar);
-  backdrop-filter: var(--blur-bar);
+  -webkit-backdrop-filter: var(--pb-blur-bar);
+  backdrop-filter: var(--pb-blur-bar);
 }
 
 .pb-topbar__brand {
@@ -368,8 +379,8 @@ html:has(> .pb-app) {
   padding: 0 var(--space-1) var(--pb-safe-bottom);
   border-top: 1px solid var(--glass-border);
   background: var(--bar);
-  -webkit-backdrop-filter: var(--blur-bar);
-  backdrop-filter: var(--blur-bar);
+  -webkit-backdrop-filter: var(--pb-blur-bar);
+  backdrop-filter: var(--pb-blur-bar);
 }
 
 .pb-bottomnav > a {
@@ -1021,11 +1032,11 @@ textarea.pb-input { resize: vertical; }
   background: var(--overlay);
   box-shadow: var(--shadow-2);
   color: var(--text);
-  -webkit-backdrop-filter: var(--blur-bar);
-  backdrop-filter: var(--blur-bar);
+  -webkit-backdrop-filter: var(--pb-blur-bar);
+  backdrop-filter: var(--pb-blur-bar);
 }
 
-.pb-frame > .pb-toast { bottom: var(--space-3); right: var(--space-3); left: var(--space-3); }
+.pb-frame > .pb-toast { position: relative; inset: auto; margin: var(--space-3); }
 .pb-toast__text { flex: 1; min-width: 0; padding: var(--space-2) 0; font-size: 14px; line-height: 20px; font-weight: 600; }
 .pb-toast--ok > .pb-icon { color: var(--ok); }
 .pb-toast--danger > .pb-icon { color: var(--danger); }
@@ -1122,15 +1133,17 @@ textarea.pb-input { resize: vertical; }
   background: var(--overlay);
   box-shadow: var(--shadow-2);
   color: var(--text);
-  -webkit-backdrop-filter: var(--blur-bar);
-  backdrop-filter: var(--blur-bar);
+  -webkit-backdrop-filter: var(--pb-blur-bar);
+  backdrop-filter: var(--pb-blur-bar);
 }
 
-.pb-sheet::backdrop {
-  background: var(--scrim);
-  -webkit-backdrop-filter: var(--blur-scrim);
-  backdrop-filter: var(--blur-scrim);
-}
+/* As <dialog> elements: stay hidden until opened, and leave the veil to .pb-sheet-backdrop
+   (::backdrop cannot read the variables on older iOS). */
+dialog.pb-sheet:not([open]),
+dialog.pb-dialog:not([open]) { display: none; }
+
+.pb-sheet::backdrop,
+.pb-dialog::backdrop { background: transparent; }
 
 .pb-sheet__grabber {
   align-self: center;

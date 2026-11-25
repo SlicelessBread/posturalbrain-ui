@@ -15,6 +15,20 @@ const inspect = () => {
   const doc = document.documentElement;
   if (doc.scrollWidth > window.innerWidth + 1) errors.push(`page scrolls sideways (${doc.scrollWidth}px > ${window.innerWidth}px)`);
   if (document.body.getBoundingClientRect().height < 24) errors.push('preview is blank');
+  // A gradient on the scrolling body restarts at every screen height: the ground must be a fixed layer.
+  if (document.body.classList.contains('pb-app') && getComputedStyle(document.body).backgroundImage !== 'none') {
+    errors.push('ground gradient is painted on the scrolling body');
+  }
+  // Bars and overlays shown inside a frame must fit in it, or the frame cuts them.
+  for (const frame of document.querySelectorAll('.pb-frame')) {
+    const f = frame.getBoundingClientRect();
+    for (const child of frame.children) {
+      const r = child.getBoundingClientRect();
+      if (r.height > 0 && (r.top < f.top - 1 || r.bottom > f.bottom + 1)) {
+        errors.push(`cut by its frame: ${(child.className || child.tagName).toString().slice(0, 40)}`);
+      }
+    }
+  }
   const visible = (el) => {
     const r = el.getBoundingClientRect();
     const s = getComputedStyle(el);
@@ -78,9 +92,13 @@ export async function renderCheck({ projectDir, widths = [390, 320], only, outDi
           errors.push(...(await page.evaluate(inspect)));
           const screenshot = path.join(outDir, `${component}-${theme}-${width}.png`);
           await page.locator('body').screenshot({ path: screenshot });
-          await page.keyboard.press('Tab');
-          const ring = await page.evaluate(focusRing);
-          if (ring) errors.push(ring);
+          // Walk every control with the keyboard, not only the first one.
+          const controls = await page.evaluate(() => document.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), select, textarea, [tabindex="0"]').length);
+          for (let i = 0; i < controls; i += 1) {
+            await page.keyboard.press('Tab');
+            const ring = await page.evaluate(focusRing);
+            if (ring) { errors.push(ring); break; }
+          }
           await page.close();
           results.push({ component, theme, width, errors: errors.filter((e) => !/^console: Failed to load resource/.test(e)), screenshot });
         }

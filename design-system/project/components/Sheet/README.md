@@ -5,7 +5,7 @@ Il foglio dal basso apre un compito breve sopra la pagina, senza far perdere il 
 **Quando no.** Per un compito lungo o con più passi usa una pagina intera. Per una domanda secca («Eliminare?») usa la conferma. Mai un foglio aperto sopra un altro foglio.
 
 **Cosa fornisce chi lo usa.**
-- Il velo `pb-sheet-backdrop` dietro e il foglio `pb-sheet` con `role="dialog"`, `aria-modal="true"` e `aria-labelledby` verso il titolo. Si può usare un elemento `dialog` aperto con `showModal()`: il velo è già previsto.
+- Il velo `pb-sheet-backdrop` dietro e il foglio `pb-sheet` con `role="dialog"`, `aria-modal="true"` e `aria-labelledby` verso il titolo. Può essere un elemento `dialog` aperto con `showModal()`; il velo `pb-sheet-backdrop` va messo comunque, perché quello nativo non legge le variabili sui telefoni meno recenti.
 - `pb-sheet__head`: un titolo che dice l'azione («Aggiungi collaboratore») e il pulsante a icona per chiudere.
 - `pb-sheet__body`: il contenuto.
 - `pb-sheet__actions`: il pulsante principale a tutta larghezza, con lo stesso verbo del titolo. Resta visibile in fondo anche quando il contenuto scorre.

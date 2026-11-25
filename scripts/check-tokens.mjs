@@ -9,6 +9,7 @@ const COLOR_FN = /^(rgba?|hsla?|oklch|oklab|lab|lch|color)\(([a-z0-9.\s,%/+-]*)\
 const ALIAS = /^\{([^{}]+)\}$/;
 const LENGTH = /^-?\d*\.?\d+(px|rem|em|%)?$/;
 const PLAIN = /^[A-Za-z0-9 #%(),./+_-]{1,200}$/;
+const SINGLE = /^[A-Za-z0-9#%.+_-]+(\([^()]*\))?$/;
 const CAPS = { color: 600, other: 60, styles: 80, themes: 8, families: 12 };
 
 const isList = (family) => family && Array.isArray(family.tokens);
@@ -46,6 +47,8 @@ export function validateTokens(tokens) {
           if (typeof v !== 'number' && !LENGTH.test(v)) problems.push(`${where}: invalid length (${v})`);
         } else if (!PLAIN.test(String(v)) || /var\(|url\(/.test(String(v))) {
           problems.push(`${where}: invalid value (${v})`);
+        } else if (!SINGLE.test(String(v))) {
+          problems.push(`${where}: composite value, the page keeps single values only (${v})`);
         }
       }
     }
@@ -107,9 +110,13 @@ const luminance = ([r, g, b]) => {
   return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
 };
 
-/** WCAG 2 contrast ratio. A translucent ground is blended over `over`, translucent text over the ground. */
+/**
+ * WCAG 2 contrast ratio. A translucent ground is blended over `over`, translucent text over the ground.
+ * `over` is one colour or a stack of layers listed from the one right under the ground down to the page.
+ */
 export function contrast(fg, bg, over = '#ffffff') {
-  const ground = blend(parseColor(bg), blend(parseColor(over), [255, 255, 255, 1]));
+  const base = [].concat(over).reduceRight((under, layer) => blend(parseColor(layer), under), [255, 255, 255, 1]);
+  const ground = blend(parseColor(bg), base);
   const ink = blend(parseColor(fg), ground);
   const [hi, lo] = [luminance(ink), luminance(ground)].sort((a, b) => b - a);
   return (hi + 0.05) / (lo + 0.05);
@@ -132,7 +139,7 @@ export function checkPairs(tokens, pairs) {
     for (const pair of pairs) {
       const fg = resolve(tokens, pair.fg, theme.id);
       const bg = resolve(tokens, pair.bg, theme.id);
-      const over = pair.over ? resolve(tokens, pair.over, theme.id) : undefined;
+      const over = pair.over ? [].concat(pair.over).map((name) => resolve(tokens, name, theme.id)) : undefined;
       const ratio = contrast(fg, bg, over);
       if (ratio < pair.min) failures.push({ ...pair, theme: theme.id, ratio: Math.round(ratio * 100) / 100 });
     }
@@ -146,7 +153,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const problems = validateTokens(tokens);
   const failures = checkPairs(tokens, pairs);
   for (const p of problems) console.log(`token: ${p}`);
-  for (const f of failures) console.log(`contrast: ${f.fg} on ${f.bg}${f.over ? ` over ${f.over}` : ''} [${f.theme}] ${f.ratio} < ${f.min}`);
+  for (const f of failures) console.log(`contrast: ${f.fg} on ${f.bg}${f.over ? ` over ${[].concat(f.over).join(' > ')}` : ''} [${f.theme}] ${f.ratio} < ${f.min}`);
   console.log(`${problems.length} token problem(s), ${failures.length} contrast failure(s) in ${pairs.length} pairs`);
   process.exit(problems.length || failures.length ? 1 : 0);
 }
