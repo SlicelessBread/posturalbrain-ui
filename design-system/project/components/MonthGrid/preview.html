@@ -1,0 +1,65 @@
+<!-- @dsCard group="Calendario" height=480 subtitle="Mese con oggi, giorno scelto, giorni con eventi, legenda" -->
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MonthGrid</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700;800&family=Red+Hat+Text:wght@400;500;600&display=swap">
+</head>
+<body class="pb-app pb-app--inline">
+<div class="pb-stack">
+  <div class="pb-month"><div class="pb-month__grid" role="grid" aria-label="Dicembre 2026">
+    <span class="pb-month__dow" aria-hidden="true">L</span>
+    <span class="pb-month__dow" aria-hidden="true">M</span>
+    <span class="pb-month__dow" aria-hidden="true">M</span>
+    <span class="pb-month__dow" aria-hidden="true">G</span>
+    <span class="pb-month__dow" aria-hidden="true">V</span>
+    <span class="pb-month__dow" aria-hidden="true">S</span>
+    <span class="pb-month__dow" aria-hidden="true">D</span>
+    <button class="pb-month__cell pb-month__cell--out" type="button" aria-pressed="false" aria-label="30 novembre, 4 eventi"><span class="pb-month__num">30</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--due"></i><i class="pb-month__dot pb-month__dot--start"></i><i class="pb-month__dot pb-month__dot--paid"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="1 dicembre, nessun evento"><span class="pb-month__num">1</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="2 dicembre, 1 evento"><span class="pb-month__num">2</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--due"></i></span></button>
+    <button class="pb-month__cell pb-month__cell--today" type="button" aria-pressed="false" aria-label="3 dicembre, oggi, 2 eventi"><span class="pb-month__num">3</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--due"></i><i class="pb-month__dot pb-month__dot--start"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="4 dicembre, nessun evento"><span class="pb-month__num">4</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="5 dicembre, 1 evento"><span class="pb-month__num">5</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--end"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="6 dicembre, 1 evento"><span class="pb-month__num">6</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--paid"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="7 dicembre, nessun evento"><span class="pb-month__num">7</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="8 dicembre, nessun evento"><span class="pb-month__num">8</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="9 dicembre, nessun evento"><span class="pb-month__num">9</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="true" aria-label="10 dicembre, scelto, 2 eventi"><span class="pb-month__num">10</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--post"></i><i class="pb-month__dot pb-month__dot--post"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="11 dicembre, nessun evento"><span class="pb-month__num">11</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="12 dicembre, nessun evento"><span class="pb-month__num">12</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="13 dicembre, nessun evento"><span class="pb-month__num">13</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="14 dicembre, 1 evento"><span class="pb-month__num">14</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--due"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="15 dicembre, nessun evento"><span class="pb-month__num">15</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="16 dicembre, nessun evento"><span class="pb-month__num">16</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="17 dicembre, nessun evento"><span class="pb-month__num">17</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="18 dicembre, 3 eventi"><span class="pb-month__num">18</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--start"></i><i class="pb-month__dot pb-month__dot--end"></i><i class="pb-month__dot pb-month__dot--due"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="19 dicembre, nessun evento"><span class="pb-month__num">19</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="20 dicembre, nessun evento"><span class="pb-month__num">20</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="21 dicembre, nessun evento"><span class="pb-month__num">21</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="22 dicembre, 1 evento"><span class="pb-month__num">22</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--post"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="23 dicembre, nessun evento"><span class="pb-month__num">23</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="24 dicembre, nessun evento"><span class="pb-month__num">24</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="25 dicembre, nessun evento"><span class="pb-month__num">25</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="26 dicembre, nessun evento"><span class="pb-month__num">26</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="27 dicembre, nessun evento"><span class="pb-month__num">27</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="28 dicembre, 1 evento"><span class="pb-month__num">28</span><span class="pb-month__dots" aria-hidden="true"><i class="pb-month__dot pb-month__dot--due"></i></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="29 dicembre, nessun evento"><span class="pb-month__num">29</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="30 dicembre, nessun evento"><span class="pb-month__num">30</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell" type="button" aria-pressed="false" aria-label="31 dicembre, nessun evento"><span class="pb-month__num">31</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell pb-month__cell--out" type="button" aria-pressed="false" aria-label="1 gennaio, nessun evento"><span class="pb-month__num">1</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell pb-month__cell--out" type="button" aria-pressed="false" aria-label="2 gennaio, nessun evento"><span class="pb-month__num">2</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+    <button class="pb-month__cell pb-month__cell--out" type="button" aria-pressed="false" aria-label="3 gennaio, nessun evento"><span class="pb-month__num">3</span><span class="pb-month__dots" aria-hidden="true"></span></button>
+  </div></div>
+  <ul class="pb-legend">
+    <li><span class="pb-event pb-event--compact pb-event--start"><svg class="pb-icon pb-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>Inizio</span></li>
+    <li><span class="pb-event pb-event--compact pb-event--end"><svg class="pb-icon pb-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>Fine</span></li>
+    <li><span class="pb-event pb-event--compact pb-event--due"><svg class="pb-icon pb-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/></svg>Rata</span></li>
+    <li><span class="pb-event pb-event--compact pb-event--paid"><svg class="pb-icon pb-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Pagata</span></li>
+    <li><span class="pb-event pb-event--compact pb-event--post"><svg class="pb-icon pb-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>Post</span></li>
+  </ul>
+</div>
+</body>
+</html>
