@@ -34,9 +34,12 @@ const inspect = () => {
 const focusRing = () => {
   const el = document.activeElement;
   if (!el || el === document.body) return null;
-  const s = getComputedStyle(el);
-  const ring = (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== 'none';
-  return ring ? null : `no visible focus ring on ${(el.className || el.tagName).toString().slice(0, 40)}`;
+  // A field inside a group shows its ring on the group, so look a few ancestors up.
+  for (let node = el, depth = 0; node && depth < 3; node = node.parentElement, depth += 1) {
+    const s = getComputedStyle(node);
+    if (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) return null;
+  }
+  return `no visible focus ring on ${(el.className || el.tagName).toString().slice(0, 40)}`;
 };
 
 export async function renderCheck({ projectDir, widths = [390, 320], only, outDir = '.render' }) {
