@@ -63,3 +63,19 @@ test('keyboard focus is visible and reduced motion is honoured', () => {
   assert.match(reduced[1], /animation:\s*none\s*!important/);
   assert.match(reduced[1], /transition:\s*none\s*!important/);
 });
+
+test('every pb- class and text style used in a preview is defined', () => {
+  const defined = new Set([...bundle.matchAll(/\.(pb-[a-z0-9_-]+)/g)].map((m) => m[1]));
+  const tokens = JSON.parse(read(PROJECT, 'tokens.json'));
+  const styles = new Set(tokens.type.groups.flatMap((g) => g.styles.map((s) => s.name)));
+  const missing = [];
+  for (const d of dirs) {
+    for (const [, list] of read(SOURCES, `${d}.html`).matchAll(/class="([^"]*)"/g)) {
+      for (const c of list.split(/\s+/).filter(Boolean)) {
+        if (c.startsWith('pb-') && !defined.has(c)) missing.push(`${d}: .${c}`);
+        if (c.startsWith('text-') && !styles.has(c)) missing.push(`${d}: .${c}`);
+      }
+    }
+  }
+  assert.deepEqual([...new Set(missing)], []);
+});
