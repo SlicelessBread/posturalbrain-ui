@@ -101,6 +101,11 @@ test('one component of every family is on the page, in both themes, with no cons
   await page.locator('.pb-bottomnav').getByRole('link', { name: 'Pazienti' }).click();
   await page.getByRole('heading', { name: 'Altra pagina' }).waitFor();
   assert.equal(await page.evaluate(() => window.__sameDocument), true);
+  for (const selector of ['.pb-login', '.pb-login__form', '.pb-login__or', 'label.pb-upload--idle', '.pb-event--compact', '.pb-empty']) {
+    assert.ok(await page.locator(selector).first().isVisible(), selector);
+  }
+  // On a real page the sign-in screen is as tall as the screen.
+  assert.ok(await page.locator('.pb-login').evaluate((el) => el.getBoundingClientRect().height >= window.innerHeight));
   await page.getByRole('link', { name: 'Torna alla prova', exact: true }).first().click();
   await page.getByRole('heading', { name: 'Prova del pacchetto' }).waitFor();
   assert.equal(await page.locator('a.pb-list-row').first().getAttribute('href'), '/');

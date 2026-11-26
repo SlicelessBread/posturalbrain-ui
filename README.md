@@ -25,12 +25,16 @@ const nextConfig: NextConfig = {
 In `app/layout.tsx`: lo stile, i caratteri, il tema.
 
 ```tsx
+import type { Viewport } from 'next';
 import { Red_Hat_Display, Red_Hat_Text } from 'next/font/google';
 import { ThemeScript } from 'posturalbrain-ui';
 import 'posturalbrain-ui/styles.css';
 
 const display = Red_Hat_Display({ subsets: ['latin'], weight: ['700', '800'], variable: '--font-display', fallback: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'sans-serif'] });
 const text = Red_Hat_Text({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-text', fallback: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'sans-serif'] });
+
+// Senza viewportFit: 'cover' i margini per la tacca e per la barra di sistema dell'iPhone valgono zero.
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -50,6 +54,7 @@ Da ricordare:
 - Le due classi dei caratteri vanno sul `body`, non su `html`: così prevalgono sui valori predefiniti del foglio di stile.
 - `suppressHydrationWarning` su `html` serve perché `ThemeScript` scrive il tema su quell'elemento prima che React parta.
 - Non impostare `themeColor` nei metadati di Next: il colore della barra del telefono lo aggiorna `ThemeScript` insieme al tema.
+- **In un'app che ha già un suo stile**: il foglio del pacchetto definisce le sue variabili su `:root` (`--text`, `--accent`, `--bg-0`, `--space-…`, `--radius-…`, `--font-…` e le altre di `tokens.json`). Se il `globals.css` dell'app usa gli stessi nomi, vince il file caricato per ultimo, variabile per variabile. Prima di importare `styles.css` vanno tolte dal `globals.css` le variabili con quei nomi e le regole sul `body`.
 - Con npm 12 le dipendenze da GitHub vanno autorizzate: `allow-git=all` nel file `.npmrc` dell'app. Vercel oggi usa npm 10 o 11 e non lo richiede.
 
 ## Usare i componenti
@@ -76,7 +81,7 @@ export default function Pazienti() {
 ```
 
 - **Link.** Un componente con `href` è un link. Per la navigazione senza ricaricare la pagina passagli `Link` di Next con `as` (o `linkAs` dove i link sono più d'uno, come nella barra in basso).
-- **Componenti server.** Tutto si importa da `posturalbrain-ui` anche in un componente server. I componenti che tengono uno stato o reagiscono al tocco (`Segmented`, `Tabs`, `Switch`, `Sheet`, `ConfirmDialog`, `WeekColumns`, `MonthGrid`, `UploadZone`, `ThemeSwitch`) dichiarano da soli `"use client"`; per dar loro una funzione (`onChange`, `onClose`) il file che li usa deve essere a sua volta un componente client.
+- **Componenti server.** Tutto si importa da `posturalbrain-ui` anche in un componente server. I componenti che tengono uno stato o reagiscono al tocco (`Segmented`, `Tabs`, `Switch`, `Sheet`, `ConfirmDialog`, `WeekColumns`, `MonthGrid`, `UploadZone`, `ThemeSwitch`) dichiarano da soli `"use client"`; per dar loro una funzione (`onChange`, `onClose`) il file che li usa deve essere a sua volta un componente client. Lo stesso vale per qualsiasi componente a cui si passa una funzione (`onClick` di un `Button`, `onChange` di un campo, `onToggleFavourite` di una scheda video) e per `useTheme()`: le funzioni e gli hook vivono solo nei componenti client.
 - **Testi e cifre.** I componenti non formattano nulla: importi, date e testi arrivano già pronti dall'app. Le etichette che il componente possiede («Chiudi», «Annulla», «Oggi») sono in italiano e si possono sostituire.
 - **Icone.** `icon="plus"` disegna un'icona del pacchetto (l'elenco è il tipo `IconName`); in alternativa si passa un elemento proprio.
 - **Tema.** `ThemeSwitch` è il controllo pronto; `useTheme()` dà la scelta, il tema risultante e `setChoice`.
@@ -116,13 +121,14 @@ La chiave finisce così in `package.json` e nel file di blocco dell'app: chi leg
 ```bash
 npm run typecheck        # tipi del pacchetto e degli esempi
 npm test                 # variabili, contrasto, struttura, resa di ogni anteprima, componenti, tema
-npm run test:example     # compila l'app di prova e la apre in Chromium
+npm run example:build    # installa il pacchetto nell'app di prova e la compila
+npm run test:example     # come sopra, poi la apre in Chromium
 npm run build:package    # rigenera styles.css, la tabella delle icone e i colori del tema
 npm run build:previews   # rigenera le anteprime dagli esempi
 npm run check:render     # apre le anteprime in Chromium (schermate in .render/)
 ```
 
-`npm test` e `npm run test:example` richiedono Playwright con Chromium, che non è tra le dipendenze: va installato a parte dove manca. Per aggiungere un'icona: `LUCIDE_DIR=<cartella icons di lucide-static> npm run build:previews`, poi `npm run build:package`.
+`npm test` e `npm run test:example` richiedono Playwright con Chromium, che non è tra le dipendenze: va installato a parte dove manca. L'app di prova ha bisogno della rete (pacchetti e caratteri di Google) e riceve il pacchetto come archivio creato da `npm run example:build`: su una copia nuova del repository quel comando va eseguito prima di `npm install` o `npm run dev` dentro `example/`. Per aggiungere un'icona: `LUCIDE_DIR=<cartella icons di lucide-static> npm run build:previews`, poi `npm run build:package`.
 
 ## Licenze
 
