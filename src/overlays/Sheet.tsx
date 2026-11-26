@@ -33,7 +33,7 @@ export function Sheet({ open, onClose, title, children, actions, closeLabel = 'C
             <span className="pb-sheet__grabber" aria-hidden="true" />
             <header className="pb-sheet__head">
               <h2 id={titleId} className="text-section">{title}</h2>
-              <IconButton variant="ghost" icon="x" label={closeLabel} onClick={modal ? close : onClose} />
+              <IconButton variant="ghost" icon="x" label={closeLabel} onClick={close} />
             </header>
             <div className="pb-sheet__body pb-stack">{children}</div>
             {actions ? <footer className="pb-sheet__actions">{actions}</footer> : null}

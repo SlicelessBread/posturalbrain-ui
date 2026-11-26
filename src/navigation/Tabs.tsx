@@ -12,7 +12,7 @@ export type TabsProps<T extends string> = {
   className?: string;
 };
 
-const STEP: Record<string, (index: number, count: number) => number> = {
+const STEP: Partial<Record<string, (index: number, count: number) => number>> = {
   ArrowRight: (i, n) => (i + 1) % n,
   ArrowLeft: (i, n) => (i - 1 + n) % n,
   Home: () => 0,
@@ -25,11 +25,11 @@ export function Tabs<T extends string>({ tabs, value, onChange, label, className
 
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const step = STEP[event.key];
-    const next = step && tabs[step(index, tabs.length)];
-    if (!next) return;
+    if (!step) return;
+    const next = step(index, tabs.length);
     event.preventDefault();
-    onChange?.(next.value);
-    event.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]')[tabs.indexOf(next)]?.focus();
+    onChange?.(tabs[next].value);
+    event.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]')[next]?.focus();
   }
 
   return (

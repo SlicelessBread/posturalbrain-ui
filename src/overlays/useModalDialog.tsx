@@ -51,9 +51,10 @@ export function useModalDialog({ open, modal, onDismiss, lightDismiss }: Options
 
   // The veil is a plain element, because ::backdrop cannot read the theme variables on older iOS.
   // Behind a modal dialog it goes on <body>: an ancestor with a transform or a blur would confine it.
+  const backdrop = <div className="pb-sheet-backdrop" />;
   let veil: ReactNode = null;
-  if (modal) veil = showing ? createPortal(<div className="pb-sheet-backdrop" />, document.body) : null;
-  else if (open) veil = <div className="pb-sheet-backdrop" />;
+  if (modal && showing) veil = createPortal(backdrop, document.body);
+  else if (!modal && open) veil = backdrop;
 
   const dialogProps = {
     ref,
@@ -63,5 +64,7 @@ export function useModalDialog({ open, modal, onDismiss, lightDismiss }: Options
     // Spread, so that it also compiles against React types that do not know `closedby` yet.
     ...(lightDismiss ? { closedby: 'any' as const } : {}),
   };
-  return { veil, dialogProps, close: () => ref.current?.close() };
+  // For the dialog's own buttons: over the page the browser closes it and reports the close; in place the app is told directly.
+  const close = () => (modal ? ref.current?.close() : onDismiss());
+  return { veil, dialogProps, close };
 }

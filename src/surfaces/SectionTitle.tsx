@@ -16,7 +16,7 @@ export function SectionTitle({ children, count, action, className }: SectionTitl
     <div className={cx('pb-section-title', className)}>
       <h2 className="text-section">
         {children}
-        {count !== undefined && count !== null ? <> <span className="pb-section-title__count">{count}</span></> : null}
+        {count != null ? <> <span className="pb-section-title__count">{count}</span></> : null}
       </h2>
       {action}
     </div>

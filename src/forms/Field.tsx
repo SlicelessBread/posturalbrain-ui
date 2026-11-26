@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { cx } from '../cx';
 import { Icon } from '../Icon';
 
@@ -19,8 +19,15 @@ type FieldShellProps = FieldProps & {
   children: ReactNode;
 };
 
-/** The id to put in the control's `aria-describedby`, when the field has a note. */
-export const describedBy = (props: FieldProps, noteId: string) => (props.error || props.help ? noteId : undefined);
+/** Internal: what a field component hands to its `Field` shell and to its control. */
+export function useField({ label, help, helpNumeric, error }: FieldProps) {
+  const noteId = useId();
+  return {
+    shell: { label, help, helpNumeric, error, noteId },
+    // The control is marked invalid and points at the note under it.
+    control: { 'aria-invalid': error ? true : undefined, 'aria-describedby': error || help ? noteId : undefined },
+  };
+}
 
 /** Internal: the label, the control and its note, as one tap target. */
 export function Field({ label, help, helpNumeric, error, noteId, className, children }: FieldShellProps) {

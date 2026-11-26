@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { cx } from '../cx';
 import { Icon } from '../Icon';
+import { LinkOr } from '../LinkOr';
 import type { LinkAs } from '../types';
 
 type ListRowProps = {
@@ -19,19 +20,19 @@ type ListRowProps = {
 };
 
 /** One row of a `List`. It draws its own `<li>`. */
-export function ListRow({ title, meta, status, avatar, trail, href, as: Link = 'a', className }: ListRowProps) {
+export function ListRow({ title, meta, status, avatar, trail, href, as, className }: ListRowProps) {
   const end = trail ?? (href !== undefined ? <Icon name="chevron-right" /> : null);
-  const content = (
-    <>
-      {avatar}
-      <span className="pb-list-row__body">
-        <span className="pb-list-row__title text-body-strong">{title}</span>
-        {meta ? <span className="pb-list-row__meta text-label">{meta}</span> : null}
-        {status ? <span className="pb-list-row__status">{status}</span> : null}
-      </span>
-      {end ? <span className="pb-list-row__trail">{end}</span> : null}
-    </>
+  return (
+    <li>
+      <LinkOr className={cx('pb-list-row', className)} href={href} as={as}>
+        {avatar}
+        <span className="pb-list-row__body">
+          <span className="pb-list-row__title text-body-strong">{title}</span>
+          {meta ? <span className="pb-list-row__meta text-label">{meta}</span> : null}
+          {status ? <span className="pb-list-row__status">{status}</span> : null}
+        </span>
+        {end ? <span className="pb-list-row__trail">{end}</span> : null}
+      </LinkOr>
+    </li>
   );
-  const classes = cx('pb-list-row', className);
-  return <li>{href !== undefined ? <Link className={classes} href={href}>{content}</Link> : <div className={classes}>{content}</div>}</li>;
 }

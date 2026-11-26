@@ -23,18 +23,17 @@ type VideoPlayerProps = {
 
 /** The frame a video plays in, with its caption. The playback controls are the browser's own. */
 export function VideoPlayer({ title, meta, duration, state = 'ready', portrait, onPlay, errorMessage = 'Il video non è disponibile.', children, labels, className }: VideoPlayerProps) {
-  let content: ReactNode;
-  if (state === 'error') {
-    content = (
-      <span className="pb-player__message">
-        <Icon name="circle-alert" />
-        <span className="text-label">{errorMessage}</span>
-      </span>
-    );
-  } else {
-    content = (
-      <>
-        {children}
+  return (
+    <figure className={cx('pb-player', portrait && 'pb-player--portrait', className)}>
+      <div className={cx('pb-player__frame', state === 'error' && 'pb-player__frame--error')}>
+        {state === 'error' ? (
+          <span className="pb-player__message">
+            <Icon name="circle-alert" />
+            <span className="text-label">{errorMessage}</span>
+          </span>
+        ) : (
+          children
+        )}
         {state === 'loading' ? <Spinner size="lg" className="pb-player__spinner" label={labels?.loading ?? 'Caricamento del video'} /> : null}
         {state === 'ready' && !children ? (
           <>
@@ -44,12 +43,7 @@ export function VideoPlayer({ title, meta, duration, state = 'ready', portrait, 
             {duration ? <span className="pb-player__duration pb-num">{duration}</span> : null}
           </>
         ) : null}
-      </>
-    );
-  }
-  return (
-    <figure className={cx('pb-player', portrait && 'pb-player--portrait', className)}>
-      <div className={cx('pb-player__frame', state === 'error' && 'pb-player__frame--error')}>{content}</div>
+      </div>
       {title || meta ? (
         <figcaption className="pb-player__caption">
           {title ? <span className="text-section">{title}</span> : null}

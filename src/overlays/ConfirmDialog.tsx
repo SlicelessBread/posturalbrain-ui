@@ -43,7 +43,7 @@ export function ConfirmDialog({ open, onCancel, onConfirm, title, children, conf
             <p id={textId} className="pb-muted">{children}</p>
             <div className="pb-dialog__actions">
               {/* First in the dialog, so it takes the focus: the safe choice is the default one. */}
-              <Button onClick={modal ? close : onCancel}>{cancelLabel}</Button>
+              <Button onClick={close}>{cancelLabel}</Button>
               <Button variant={tone} icon={confirmIcon} loading={pending} onClick={onConfirm}>{confirmLabel}</Button>
             </div>
           </>

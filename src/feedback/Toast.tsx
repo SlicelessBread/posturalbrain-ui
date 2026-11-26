@@ -4,10 +4,12 @@ import { renderIcon } from '../Icon';
 import type { IconName } from '../icons.generated';
 import type { IconInput } from '../types';
 
-const ICONS: Record<'ok' | 'danger', IconName> = { ok: 'circle-check', danger: 'circle-alert' };
+type ToastTone = 'ok' | 'danger';
+
+const ICONS: Record<ToastTone, IconName> = { ok: 'circle-check', danger: 'circle-alert' };
 
 type ToastProps = {
-  tone?: 'ok' | 'danger';
+  tone?: ToastTone;
   /** Defaults to the icon of the tone; a neutral toast has none unless you give one. */
   icon?: IconInput;
   /** Usually a small ghost `Button` ("Riprova"). */

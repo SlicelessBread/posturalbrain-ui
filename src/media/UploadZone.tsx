@@ -33,7 +33,7 @@ type UploadZoneProps = {
   className?: string;
 };
 
-const ICONS: Record<'uploading' | 'done' | 'error', IconName> = { uploading: 'film', done: 'circle-check', error: 'circle-alert' };
+const ICONS: Record<Exclude<UploadZoneProps['status'], 'idle'>, IconName> = { uploading: 'film', done: 'circle-check', error: 'circle-alert' };
 
 /** Where a file is chosen, and where its upload is followed to the end. */
 export function UploadZone({ status, title, hint, dropTitle, accept, onFile, name, detail, progress, progressLabel = 'Caricamento', action, dragging, className }: UploadZoneProps) {
@@ -64,17 +64,21 @@ export function UploadZone({ status, title, hint, dropTitle, accept, onFile, nam
     if (file) onFile?.(file);
   }
 
-  function onDrag(event: DragEvent<HTMLLabelElement>) {
+  function onDragOver(event: DragEvent<HTMLLabelElement>) {
     // Without this the browser opens the dropped file instead of handing it over.
     event.preventDefault();
-    setOver(event.type !== 'dragleave' && event.type !== 'drop');
-    if (event.type !== 'drop') return;
+    setOver(true);
+  }
+
+  function onDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setOver(false);
     const file = event.dataTransfer.files[0];
     if (file) onFile?.(file);
   }
 
   return (
-    <label className={cx('pb-upload', target ? 'pb-upload--dragging' : 'pb-upload--idle', className)} onDragEnter={onDrag} onDragOver={onDrag} onDragLeave={onDrag} onDrop={onDrag}>
+    <label className={cx('pb-upload', target ? 'pb-upload--dragging' : 'pb-upload--idle', className)} onDragEnter={onDragOver} onDragOver={onDragOver} onDragLeave={() => setOver(false)} onDrop={onDrop}>
       {/* data-pb-compact: the input is hidden, the whole zone is the tap target. */}
       <input className="pb-sr-only" type="file" accept={accept} data-pb-compact="" onChange={onChange} />
       <span className="pb-upload__icon" aria-hidden="true"><Icon name="upload" /></span>
