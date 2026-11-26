@@ -54,3 +54,25 @@ test('Chip and Segmented state their selection with aria-pressed', () => {
   assert.match(segmented, /aria-pressed="false" data-value="a">A<\/button><button type="button" aria-pressed="true" data-value="b">B</);
   assert.equal(html(ui.Segmented, { label: 'Vuoto', value: '', options: [] }), '<div class="pb-segmented" role="group" aria-label="Vuoto"></div>');
 });
+
+test('Progress stays a drawable bar for values outside its scale', () => {
+  const value = (props) => /--value:([^;"]*)/.exec(html(ui.Progress, { label: 'x', ...props }))[1];
+  assert.equal(value({ value: 40 }), '0.4');
+  assert.equal(value({ value: -1 }), '0');
+  assert.equal(value({ value: 150 }), '1');
+  assert.equal(value({ value: NaN }), '0');
+  assert.equal(value({ value: 3, max: 0 }), '0');
+  for (const props of [{ value: NaN }, { value: 5, max: NaN }, { value: Infinity }, { value: 3, max: 0 }]) assert.doesNotMatch(html(ui.Progress, { label: 'x', ...props }), /NaN|Infinity/);
+  assert.match(html(ui.Progress, { label: 'Rate incassate', value: 3, max: 3 }), /aria-valuemin="0" aria-valuemax="3" aria-valuenow="3"/);
+  const unknown = html(ui.Progress, { label: 'Pubblicazione in corso' });
+  assert.match(unknown, /class="pb-progress pb-progress--indeterminate" role="progressbar" aria-label="Pubblicazione in corso"/);
+  assert.doesNotMatch(unknown, /aria-valuenow/);
+});
+
+test('an error is announced at once: Banner and Toast use role="alert" only for danger', () => {
+  assert.match(html(ui.Banner, { tone: 'danger', title: 'Errore' }), /role="alert"/);
+  assert.match(html(ui.Banner, { tone: 'warn', title: 'Attenzione' }), /role="status"/);
+  assert.match(html(ui.Toast, { tone: 'danger' }, 'Errore'), /role="alert"/);
+  assert.match(html(ui.Toast, null, 'Link copiato'), /^<div class="pb-toast" role="status"><span class="pb-toast__text">Link copiato<\/span><\/div>$/);
+  assert.match(html(ui.Banner, { tone: 'ok', title: 'Fatto' }), /<div class="pb-banner__body"><strong>Fatto<\/strong><\/div>/);
+});

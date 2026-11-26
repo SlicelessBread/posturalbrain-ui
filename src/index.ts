@@ -32,3 +32,10 @@ export type { Theme, ThemeChoice } from './theme/theme';
 export { THEME_COLORS } from './theme/colors.generated';
 export { ThemeScript } from './theme/ThemeScript';
 export { useTheme } from './theme/useTheme';
+
+export { Badge } from './feedback/Badge';
+export type { Tone } from './feedback/Badge';
+export { Banner } from './feedback/Banner';
+export { Toast } from './feedback/Toast';
+export { Progress } from './feedback/Progress';
+export { Spinner } from './feedback/Spinner';
