@@ -1,13 +1,42 @@
 {
   "name": "posturalbrain-ui",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "description": "POSTURALBRAIN design system: tokens, styles and components shared by the apps",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./styles.css",
+    "./tokens.json": "./design-system/project/tokens.json"
+  },
+  "files": [
+    "src",
+    "styles.css",
+    "design-system/project/tokens.json"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
-    "test": "node --test \"test/*.test.mjs\"",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"test/*.test.mjs\"",
     "check:render": "node scripts/render-check.mjs",
     "tokens:css": "node scripts/tokens-css.mjs",
-    "build:previews": "node scripts/build-previews.mjs"
+    "build:package": "node scripts/build-package.mjs",
+    "build:previews": "node scripts/build-previews.mjs",
+    "example:build": "node scripts/example-install.mjs && npm --prefix example run build && npm --prefix example run typecheck",
+    "test:example": "npm run example:build && node --test \"test/example/*.test.mjs\""
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }

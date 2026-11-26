@@ -1,3 +1,8 @@
 .render/
 node_modules/
 .superpowers/
+*.tgz
+example/.next/
+example/next-env.d.ts
+example/package-lock.json
+*.tsbuildinfo
