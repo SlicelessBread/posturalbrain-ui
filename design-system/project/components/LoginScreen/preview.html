@@ -8,18 +8,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700;800&family=Red+Hat+Text:wght@400;500;600&display=swap">
 </head>
 <body class="pb-app pb-app--inline">
-<div class="pb-frame" style="min-height: 620px">
-  <main class="pb-login">
-    <span class="pb-login__mark" aria-hidden="true"><svg class="pb-icon pb-icon--lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></span>
-    <h1 class="text-display">PosturalBrain</h1>
-    <p class="pb-muted">Entra per vedere pazienti, percorsi e scadenze.</p>
-    <form class="pb-login__form pb-stack" onsubmit="return false">
-      <label class="pb-field"><span class="pb-field__label text-label">Password</span><input class="pb-input" type="password" value="pianoforte-verde" autocomplete="current-password"></label>
-      <button class="pb-btn pb-btn--primary pb-btn--block" type="submit">Entra</button>
-      <span class="pb-login__or text-caption">oppure</span>
-      <button class="pb-btn pb-btn--block" type="button"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>Entra con Face ID</button>
-    </form>
-  </main>
-</div>
+<div class="pb-frame" style="min-height:620px"><main class="pb-login"><span class="pb-login__mark" aria-hidden="true"><svg class="pb-icon pb-icon--lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></span><h1 class="text-display">PosturalBrain</h1><p class="pb-muted">Entra per vedere pazienti, percorsi e scadenze.</p><form class="pb-login__form pb-stack"><label class="pb-field"><span class="pb-field__label text-label">Password</span><input type="password" class="pb-input" autoComplete="current-password" value="pianoforte-verde"/></label><button type="submit" class="pb-btn pb-btn--primary pb-btn--block">Entra</button><span class="pb-login__or text-caption">oppure</span><button type="button" class="pb-btn pb-btn--block"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>Entra con Face ID</button></form></main></div>
+<script>
+// Demo only: an app handles the submit itself.
+  document.querySelector('.pb-login__form').addEventListener('submit', (event) => event.preventDefault());
+</script>
 </body>
 </html>

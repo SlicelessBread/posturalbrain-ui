@@ -204,3 +204,45 @@ test('events: each kind has its icon and name; a chip is a link only with href; 
   assert.equal((narrowed.match(/<li>/g) ?? []).length, 2);
   assert.match(narrowed, /Da incassare<\/span><\/li><li>.*Pagata<\/span><\/li>/);
 });
+
+test('UploadZone: the bar never passes its end, and each status shows its own parts', () => {
+  const bar = (progress) => /--value:([^;"]*)/.exec(html(ui.UploadZone, { status: 'uploading', title: 't', name: 'video.mp4', progress }))?.[1];
+  assert.equal(bar(1.7), '1');
+  assert.equal(bar(0.4), '0.4');
+  assert.equal(bar(-0.2), '0');
+  assert.match(html(ui.UploadZone, { status: 'uploading', title: 't', name: 'video.mp4' }), /pb-progress--indeterminate/);
+  assert.doesNotMatch(html(ui.UploadZone, { status: 'done', title: 't', name: 'video.mp4' }), /pb-progress/);
+  assert.match(html(ui.UploadZone, { status: 'done', title: 't', name: 'video.mp4', detail: '780 MB' }), /class="text-label pb-muted pb-num">780 MB</);
+  assert.match(html(ui.UploadZone, { status: 'error', title: 't', name: 'Interrotto', detail: 'Riprova più tardi.' }), /class="text-label pb-muted">Riprova/);
+  const idle = html(ui.UploadZone, { status: 'idle', title: 'Scegli un video', hint: 'MP4 o MOV', accept: 'video/mp4' });
+  assert.match(idle, /^<label class="pb-upload pb-upload--idle"><input class="pb-sr-only" type="file" accept="video\/mp4" data-pb-compact=""\/>/);
+  const dragging = html(ui.UploadZone, { status: 'idle', dragging: true, title: 'Scegli un video', dropTitle: 'Rilascia qui', hint: 'MP4 o MOV' });
+  assert.match(dragging, /^<label class="pb-upload pb-upload--dragging">.*<strong class="text-body-strong">Rilascia qui<\/strong><\/label>$/);
+});
+
+test('VideoPlayer: a real video replaces the placeholder; VideoCard states its favourite', () => {
+  const real = html(ui.VideoPlayer, { duration: '4:32' }, h('video', { controls: true }));
+  assert.match(real, /<div class="pb-player__frame"><video controls=""><\/video><\/div>/);
+  assert.doesNotMatch(real, /pb-player__play|pb-player__duration/);
+  assert.match(html(ui.VideoPlayer, { state: 'loading' }, h('video')), /<video><\/video><span class="pb-spinner pb-spinner--lg pb-player__spinner" role="status"><span class="pb-sr-only">Caricamento del video</);
+  assert.match(html(ui.VideoPlayer, { state: 'error' }, h('video')), /^<figure class="pb-player"><div class="pb-player__frame pb-player__frame--error"><span class="pb-player__message">/);
+  assert.match(html(ui.VideoPlayer, {}), /<button class="pb-player__play" type="button" aria-label="Riproduci">/);
+  const fav = html(ui.VideoCard, { href: '/v/1', title: 'Mobilità', favourite: true });
+  assert.match(fav, /<a class="pb-video-card__thumb" href="\/v\/1" aria-label="Guarda: Mobilità">/);
+  assert.match(fav, /class="pb-icon-btn pb-icon-btn--ghost pb-video-card__fav" aria-label="Togli dai preferiti" aria-pressed="true"/);
+  assert.match(html(ui.VideoCard, { href: '/v/1', title: 'Mobilità', favourite: false }), /aria-label="Aggiungi ai preferiti" aria-pressed="false"/);
+  assert.doesNotMatch(html(ui.VideoCard, { href: '/v/1', title: 'Mobilità' }), /pb-video-card__fav/);
+  assert.match(html(ui.VideoCard, { href: '/v/1', title: 'Mobilità', thumbnail: h('img', { src: '/t.jpg', alt: '' }) }), /aria-label="Guarda: Mobilità"><img src="\/t.jpg" alt=""\/><span class="pb-video-card__play"/);
+});
+
+test('PlatformStatus words each status; LoginScreen is a frame for the app\'s own form', () => {
+  const words = { published: 'Pubblicato', processing: 'In pubblicazione', pending: 'In coda', failed: 'Non riuscito' };
+  for (const [status, word] of Object.entries(words)) {
+    const out = html(ui.PlatformStatus, { mark: 'YT', name: 'YouTube', status });
+    assert.match(out, new RegExp(`^<li class="pb-platform pb-platform--${status}">`));
+    assert.ok(out.includes(`${word}</span>`), status);
+  }
+  assert.match(html(ui.PlatformStatus, { mark: 'FB', name: 'Facebook', status: 'failed', statusLabel: 'Scollegato' }), /Scollegato<\/span>/);
+  assert.equal(html(ui.LoginForm, null, h(ui.LoginDivider)), '<form class="pb-login__form pb-stack"><span class="pb-login__or text-caption">oppure</span></form>');
+  assert.match(html(ui.LoginScreen, { title: 'SociAll', mark: 'send' }, 'x'), /^<main class="pb-login"><span class="pb-login__mark" aria-hidden="true"><svg class="pb-icon pb-icon--lg"/);
+});
