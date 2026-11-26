@@ -74,3 +74,14 @@ export { Switch } from './forms/Switch';
 
 export { Sheet } from './overlays/Sheet';
 export { ConfirmDialog } from './overlays/ConfirmDialog';
+
+export { EVENT_ICONS, EVENT_KINDS, EVENT_LABELS } from './calendar/events';
+export type { EventKind } from './calendar/events';
+export { EventChip } from './calendar/EventChip';
+export { EventTag } from './calendar/EventTag';
+export { EventLegend } from './calendar/EventLegend';
+export { DayList, DayListDay } from './calendar/DayList';
+export { WeekColumns } from './calendar/WeekColumns';
+export type { WeekDay } from './calendar/WeekColumns';
+export { MonthGrid } from './calendar/MonthGrid';
+export type { MonthCell } from './calendar/MonthGrid';

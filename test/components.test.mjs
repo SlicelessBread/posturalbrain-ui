@@ -179,3 +179,28 @@ test('Sheet and ConfirmDialog: drawn in place only when asked, empty while close
   assert.doesNotMatch(confirm, /closedby/, 'a confirmation must be answered: no light dismiss');
   assert.match(confirm, /<button type="button" class="pb-btn">Annulla<\/button><button type="button" class="pb-btn pb-btn--danger" aria-busy="true" disabled="">Elimina<\/button>/);
 });
+
+test('calendar: a crowded day shows three dots, an empty day says so, empty weeks and months draw nothing', () => {
+  const cell = (events) => ({ id: 'a', day: 1, label: '1 dicembre', events });
+  const dots = (events) => (html(ui.MonthGrid, { label: 'Dicembre', cells: [cell(events)] }).match(/pb-month__dot /g) ?? []).length;
+  assert.equal(dots(['due', 'start', 'paid', 'end', 'post']), 3);
+  assert.equal(dots(['due']), 1);
+  assert.equal(dots(undefined), 0);
+  assert.match(html(ui.MonthGrid, { label: 'Vuoto', cells: [] }), /^<div class="pb-month"><div class="pb-month__grid" role="grid" aria-label="Vuoto">(<span class="pb-month__dow" aria-hidden="true">.<\/span>){7}<\/div><\/div>$/);
+  assert.equal(html(ui.WeekColumns, { days: [] }), '<div class="pb-week"><div class="pb-week__grid"></div></div>');
+  assert.equal(html(ui.DayListDay, { date: 'Martedì 1 dicembre' }), '<section class="pb-daylist__day"><h3 class="pb-daylist__date text-caption">Martedì 1 dicembre</h3><p class="pb-daylist__empty text-label">Nessun evento</p></section>');
+  assert.doesNotMatch(html(ui.DayListDay, { date: 'Lunedì' }, h(ui.EventChip, { kind: 'due', title: 'Rata' })), /pb-daylist__empty/);
+  const week = html(ui.WeekColumns, { selected: 'b', days: [{ id: 'a', weekday: 'Lun', day: 30, label: 'Lunedì', today: true }, { id: 'b', weekday: 'Mar', day: 1, label: 'Martedì', events: [{ kind: 'due', text: 'AC' }] }] });
+  assert.match(week, /class="pb-week__day pb-week__day--today" aria-pressed="false" aria-label="Lunedì"/);
+  assert.match(week, /class="pb-week__day" aria-pressed="true" aria-label="Martedì">.*<span class="pb-event pb-event--compact pb-event--due"><svg class="pb-icon pb-icon--sm"/);
+});
+
+test('events: each kind has its icon and name; a chip is a link only with href; the legend can be narrowed', () => {
+  for (const kind of ui.EVENT_KINDS) assert.ok(ui.ICONS[ui.EVENT_ICONS[kind]] && ui.EVENT_LABELS[kind], kind);
+  assert.match(html(ui.EventChip, { kind: 'due', title: 'Rata', meta: '300', numeric: true }), /^<div class="pb-event pb-event--due">.*<span class="pb-event__meta text-label pb-num">300<\/span><\/span><\/div>$/);
+  assert.match(html(ui.EventChip, { kind: 'start', title: 'Inizio', href: '/pazienti/3' }), /^<a class="pb-event pb-event--start" href="\/pazienti\/3">/);
+  assert.equal((html(ui.EventLegend).match(/<li>/g) ?? []).length, 5);
+  const narrowed = html(ui.EventLegend, { kinds: ['due', 'paid'], labels: { due: 'Da incassare' } });
+  assert.equal((narrowed.match(/<li>/g) ?? []).length, 2);
+  assert.match(narrowed, /Da incassare<\/span><\/li><li>.*Pagata<\/span><\/li>/);
+});
