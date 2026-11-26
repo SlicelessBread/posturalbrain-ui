@@ -164,3 +164,18 @@ test('Checkbox and Switch: the label names the control, a description sits under
   assert.ok(id && on.includes(`role="switch" aria-checked="true" aria-labelledby="${id}"`));
   assert.match(html(ui.Switch, { label: 'Face ID', checked: false, disabled: true }), /aria-checked="false" aria-labelledby="[^"]+" disabled=""/);
 });
+
+test('Sheet and ConfirmDialog: drawn in place only when asked, empty while closed', () => {
+  const noop = () => {};
+  const sheet = (props) => html(ui.Sheet, { onClose: noop, title: 'Aggiungi', ...props }, 'Contenuto');
+  assert.match(sheet({ open: true, modal: false }), /^<div class="pb-sheet-backdrop"><\/div><dialog class="pb-sheet" aria-labelledby="([^"]+)" open="" closedby="any"><span class="pb-sheet__grabber" aria-hidden="true"><\/span><header class="pb-sheet__head"><h2 id="\1" class="text-section">Aggiungi<\/h2>/);
+  assert.match(sheet({ open: false, modal: false }), /^<dialog class="pb-sheet" aria-labelledby="[^"]+" closedby="any"><\/dialog>$/);
+  // Over the page the browser opens it (showModal): the markup carries no `open` and no veil of its own.
+  assert.doesNotMatch(sheet({ open: true }), /open=""|pb-sheet-backdrop/);
+  assert.doesNotMatch(sheet({ open: true, modal: false }), /pb-sheet__actions/);
+  const confirm = html(ui.ConfirmDialog, { open: true, modal: false, onCancel: noop, onConfirm: noop, title: 'Eliminare?', confirmLabel: 'Elimina', pending: true }, 'Non si può annullare.');
+  const [, title, text] = /<dialog class="pb-dialog" role="alertdialog" aria-labelledby="([^"]+)" aria-describedby="([^"]+)" open="">/.exec(confirm);
+  assert.ok(confirm.includes(`<h2 id="${title}" class="text-section">Eliminare?</h2><p id="${text}" class="pb-muted">Non si può annullare.</p>`));
+  assert.doesNotMatch(confirm, /closedby/, 'a confirmation must be answered: no light dismiss');
+  assert.match(confirm, /<button type="button" class="pb-btn">Annulla<\/button><button type="button" class="pb-btn pb-btn--danger" aria-busy="true" disabled="">Elimina<\/button>/);
+});

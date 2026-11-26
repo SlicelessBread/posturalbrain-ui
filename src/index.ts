@@ -71,3 +71,6 @@ export { MoneyField } from './forms/MoneyField';
 export { SearchField } from './forms/SearchField';
 export { Checkbox } from './forms/Checkbox';
 export { Switch } from './forms/Switch';
+
+export { Sheet } from './overlays/Sheet';
+export { ConfirmDialog } from './overlays/ConfirmDialog';
