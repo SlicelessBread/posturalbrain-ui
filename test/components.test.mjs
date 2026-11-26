@@ -86,6 +86,7 @@ test('an error is announced at once: Banner and Toast use role="alert" only for 
   assert.equal(html(ui.Toast, { open: false }, 'Link copiato'), '');
   assert.doesNotMatch(html(ui.Toast, { tone: 'ok', icon: null }, 'Salvato'), /<svg/);
   assert.match(html(ui.Toast, { tone: 'ok' }, 'Salvato'), /<svg/);
+  assert.match(html(ui.Toast, { tone: 'ok', icon: undefined }, 'Salvato'), /<svg/, 'an icon left undefined falls back to the icon of the tone');
   assert.match(html(ui.Banner, { tone: 'ok', title: 'Fatto' }), /<div class="pb-banner__body"><strong>Fatto<\/strong><\/div>/);
 });
 

@@ -4,6 +4,7 @@ import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
+import { settled } from './settled.mjs';
 
 const { chromium } = createRequire(import.meta.url)('playwright');
 const css = fs.readFileSync('styles.css', 'utf8');
@@ -20,8 +21,6 @@ async function page(html, { width = 390, reducedMotion = 'no-preference' } = {})
   return p;
 }
 
-// Finite animations only: a spinner never ends.
-const settled = (p) => p.evaluate(() => Promise.all(document.getAnimations().filter((a) => a.effect.getComputedTiming().endTime !== Infinity).map((a) => a.finished.catch(() => {}))).then(() => {}));
 
 // Where the ::before highlight of a container is: its box, moved by its `translate`.
 const highlight = (p, selector) => p.evaluate((sel) => {

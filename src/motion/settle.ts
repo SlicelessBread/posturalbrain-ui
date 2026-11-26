@@ -2,12 +2,14 @@
 const LIMIT = 600;
 
 /**
- * Resolves when the animations and transitions running on the element and inside it have ended.
+ * Resolves when the animations and transitions running on the elements and inside them have ended.
  * At once when there are none (reduced motion, an old browser) and never later than the limit.
  * Animations that loop, like a spinner, are not waited for.
  */
-export function settle(element: Element): Promise<void> {
-  const running = (element.getAnimations?.({ subtree: true }) ?? []).filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity);
+export function settle(...elements: (Element | null)[]): Promise<void> {
+  const running = elements
+    .flatMap((element) => element?.getAnimations?.({ subtree: true }) ?? [])
+    .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity);
   if (running.length === 0) return Promise.resolve();
   return new Promise((resolve) => {
     const timer = setTimeout(resolve, LIMIT);

@@ -1440,14 +1440,6 @@ textarea.pb-input { resize: vertical; }
   .pb-sheet[data-closing] { translate: 0 100%; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  @starting-style {
-    .pb-sheet { opacity: 0; }
-  }
-
-  .pb-sheet[data-closing] { opacity: 0; }
-}
-
 @starting-style {
   .pb-dialog { opacity: 0; }
 }
@@ -1461,8 +1453,14 @@ textarea.pb-input { resize: vertical; }
   transition-timing-function: var(--pb-ease-exit);
 }
 
-/* With reduced motion what is left is a fade: keep it short, in and out. */
+/* With reduced motion the sheet does not travel: what is left, for all of these, is a short fade in and out. */
 @media (prefers-reduced-motion: reduce) {
+  @starting-style {
+    .pb-sheet { opacity: 0; }
+  }
+
+  .pb-sheet[data-closing] { opacity: 0; }
+
   .pb-toast, .pb-toast[data-closing],
   .pb-sheet, .pb-sheet[data-closing],
   .pb-dialog, .pb-dialog[data-closing],

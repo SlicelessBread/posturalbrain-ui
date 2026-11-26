@@ -29,8 +29,10 @@ export function Toast({ open = true, ...props }: ToastProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { rendered, closing } = usePresence(open, ref);
   // On its way out the toast keeps the text it showed.
-  const { tone, action, children, className, ...shown } = useHeld(props, open);
-  const icon = 'icon' in shown ? shown.icon : tone && ICONS[tone];
+  const shown = useHeld(props, open);
+  const { tone, action, children, className } = shown;
+  // As a default value would do: only `undefined` falls back to the icon of the tone; `null` means no icon.
+  const icon = shown.icon === undefined ? tone && ICONS[tone] : shown.icon;
   if (!rendered) return null;
   return (
     <div ref={ref} className={cx('pb-toast', tone && `pb-toast--${tone}`, className)} role={tone === 'danger' ? 'alert' : 'status'} data-closing={closing ? '' : undefined}>

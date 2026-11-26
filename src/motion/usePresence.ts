@@ -16,7 +16,7 @@ export function usePresence(open: boolean, ref: RefObject<Element | null>) {
   useEffect(() => {
     if (!closing) return;
     let cancelled = false;
-    void (ref.current ? settle(ref.current) : Promise.resolve()).then(() => {
+    void settle(ref.current).then(() => {
       if (!cancelled) setRendered(false);
     });
     return () => {

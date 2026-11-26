@@ -4,6 +4,7 @@ import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
+import { settled } from '../settled.mjs';
 import { startExample } from './server.mjs';
 
 const { chromium } = createRequire(import.meta.url)('playwright');
@@ -255,7 +256,6 @@ const showSheet = async (page) => {
   await page.getByRole('button', { name: 'Apri il foglio' }).click();
   await page.locator('dialog.pb-sheet').getByRole('heading', { name: 'Aggiungi collaboratore' }).waitFor();
 };
-const still = (page) => page.evaluate(() => Promise.all(document.getAnimations().filter((a) => a.effect.getComputedTiming().endTime !== Infinity).map((a) => a.finished.catch(() => {}))).then(() => {}));
 
 test('the sheet slides in, and stays on screen with what it showed while it slides out', async () => {
   const { page, errors, context } = await open();
@@ -265,7 +265,7 @@ test('the sheet slides in, and stays on screen with what it showed while it slid
   await page.waitForFunction(() => document.querySelector('dialog.pb-sheet').open);
   assert.notEqual((await sheetNow(page)).translate, 'none', 'just opened, the sheet is still on its way up');
   assert.ok(Number(await page.locator('body > .pb-sheet-backdrop').evaluate((el) => getComputedStyle(el).opacity)) < 1, 'the veil is still darkening');
-  await still(page);
+  await settled(page);
   assert.deepEqual(await sheetNow(page), { open: true, closing: false, translate: 'none', opacity: '1', note: true });
 
   // The app closes it and clears part of its content at the same time.
@@ -302,7 +302,7 @@ test('the sheet survives haste: reopened while leaving, Esc while arriving, Esc 
   await showSheet(page);
   await sheet.getByRole('button', { name: 'Chiudi e riapri' }).click();
   await page.waitForTimeout(700);
-  await still(page);
+  await settled(page);
   assert.deepEqual(await sheetNow(page), { open: true, closing: false, translate: 'none', opacity: '1', note: true });
   assert.equal(await page.locator('body > .pb-sheet-backdrop').count(), 1);
   assert.equal(await page.locator('body > .pb-sheet-backdrop').getAttribute('data-closing'), null);
@@ -327,7 +327,7 @@ test('the sheet survives haste: reopened while leaving, Esc while arriving, Esc 
 
   // And it still opens afterwards.
   await showSheet(page);
-  await still(page);
+  await settled(page);
   assert.equal((await sheetNow(page)).translate, 'none');
 
   assert.deepEqual(errors, []);
@@ -339,7 +339,7 @@ test('with reduced motion the sheet does not travel: it fades, and still closes'
   await page.getByRole('button', { name: 'Apri il foglio' }).click();
   await page.waitForFunction(() => document.querySelector('dialog.pb-sheet').open);
   assert.equal((await sheetNow(page)).translate, 'none');
-  await still(page);
+  await settled(page);
   assert.equal((await sheetNow(page)).opacity, '1');
   await page.locator('dialog.pb-sheet').getByRole('button', { name: 'Chiudi', exact: true }).click();
   assert.equal((await sheetNow(page)).translate, 'none');
@@ -358,7 +358,7 @@ test('the toast arrives, and fades away before it leaves the page', async () => 
   await page.getByRole('button', { name: "Mostra l'avviso" }).click();
   await toast.waitFor();
   assert.ok(Number(await toast.evaluate((el) => getComputedStyle(el).opacity)) < 1, 'it is still arriving');
-  await still(page);
+  await settled(page);
   assert.deepEqual(await toast.evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).translate]), ['1', 'none']);
 
   await page.getByRole('button', { name: "Nascondi l'avviso" }).click();
@@ -386,7 +386,7 @@ test('the highlight of a real segmented control slides, and another one on the p
   await page.getByRole('group', { name: 'Vista dei post' }).getByRole('button', { name: 'Calendario' }).click();
   await page.waitForTimeout(60);
   const midway = await shift('Vista dei post');
-  await still(page);
+  await settled(page);
   const to = await shift('Vista dei post');
   assert.notEqual(from, to);
   assert.ok(midway !== from && midway !== to, `it travels: ${from} → ${midway} → ${to}`);
