@@ -7,5 +7,5 @@ Il campo di ricerca filtra un elenco mentre si scrive.
 **Cosa fornisce chi lo usa.**
 - Un `pb-input-group pb-input-group--search` con la lente in `pb-input-group__prefix` e un `input type="search"`.
 - Un segnaposto che dice cosa si cerca («Cerca un paziente») e lo stesso testo come etichetta per i lettori di schermo.
-- Quando c'è del testo, un pulsante a icona discreto per cancellarlo, con `aria-label`.
+- Quando c'è del testo, un pulsante a icona discreto per cancellarlo, con `aria-label`. Dopo il tocco il fuoco torna al campo.
 - Se non trova nulla, uno stato vuoto senza pulsante: «Nessun paziente con questo nome».

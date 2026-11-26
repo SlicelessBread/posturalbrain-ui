@@ -2,14 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildPreview, loadIcon } from '../scripts/build-previews.mjs';
+import { buildComponentPreview, componentNames, examplePath, hasExample, loadIcon } from '../scripts/build-previews.mjs';
 
 const PROJECT = 'design-system/project';
 const COMPONENTS = path.join(PROJECT, 'components');
-const SOURCES = 'design-system/previews';
 const dirs = fs.readdirSync(COMPONENTS, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
 const read = (...p) => fs.readFileSync(path.join(...p), 'utf8');
 const bundle = read(COMPONENTS, 'bundle.css');
+const preview = (d) => read(COMPONENTS, d, 'preview.html');
+// What people wrote by hand: the React examples and the package source (the previews are generated from them).
+const exampleSources = dirs.filter(hasExample).map((d) => [`examples/${d}.tsx`, fs.readFileSync(examplePath(d), 'utf8')]);
+const packageSources = fs.readdirSync('src', { recursive: true }).filter((f) => /\.tsx?$/.test(f) && !/\.generated\.ts$/.test(f)).map((f) => [`src/${f}`, read('src', f)]);
 const MARKER = /^<!-- @dsCard( group="[^"]+")?( height=\d+)?( width=\d+)?( subtitle="[^"]*")?( page)? -->$/;
 const BLUR_ALLOWED = ['.pb-topbar', '.pb-bottomnav', '.pb-sheet', '.pb-sheet-backdrop', '.pb-toast'];
 
@@ -34,15 +37,18 @@ test('every preview starts with the card marker and uses no forbidden element', 
   }
 });
 
-test('every preview is generated from its source fragment and is up to date', () => {
-  for (const d of dirs) {
-    const source = read(SOURCES, `${d}.html`);
-    assert.equal(read(COMPONENTS, d, 'preview.html'), buildPreview(source, d, loadIcon), `${d}: run npm run build:previews`);
-  }
+test('every component is drawn by a React example; only the cover is a hand-written fragment', () => {
+  assert.deepEqual(dirs.filter((d) => !hasExample(d)), ['Cover']);
+  assert.deepEqual(fs.readdirSync('design-system/previews'), ['Cover.html']);
+  assert.deepEqual(componentNames(), [...dirs].sort());
+});
+
+test('every preview is generated from its source and is up to date', async () => {
+  for (const d of dirs) assert.equal(preview(d), await buildComponentPreview(d), `${d}: run npm run build:previews`);
 });
 
 test('colours come only from tokens: no literal colour, no theme selector, no recent colour function', () => {
-  const sources = [['bundle.css', bundle], ...dirs.map((d) => [d, read(SOURCES, `${d}.html`)])];
+  const sources = [['bundle.css', bundle], ...dirs.map((d) => [d, preview(d)]), ...exampleSources, ...packageSources];
   for (const [name, text] of sources) {
     assert.doesNotMatch(text, /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(|light-dark\(|color-mix\(/i, name);
     assert.doesNotMatch(text, /\[data-theme/, name);
@@ -70,7 +76,7 @@ test('every pb- class and text style used in a preview is defined', () => {
   const styles = new Set(tokens.type.groups.flatMap((g) => g.styles.map((s) => s.name)));
   const missing = [];
   for (const d of dirs) {
-    for (const [, list] of read(SOURCES, `${d}.html`).matchAll(/class="([^"]*)"/g)) {
+    for (const [, list] of preview(d).matchAll(/class="([^"]*)"/g)) {
       for (const c of list.split(/\s+/).filter(Boolean)) {
         if (c.startsWith('pb-') && !defined.has(c)) missing.push(`${d}: .${c}`);
         if (c.startsWith('text-') && !styles.has(c)) missing.push(`${d}: .${c}`);
@@ -89,9 +95,9 @@ test('the brand book is usage rules: no title, and it names tokens and classes',
 });
 
 test('every icon in assets/Icone is used by a preview, and the brand assets are present', () => {
-  const used = new Set(dirs.flatMap((d) => [...read(SOURCES, `${d}.html`).matchAll(/\{\{icon:([a-z0-9-]+)/g)].map((m) => m[1])));
+  const all = dirs.map(preview).join('\n');
   const icons = fs.readdirSync(path.join(PROJECT, 'assets/Icone')).filter((f) => f.endsWith('.svg')).map((f) => f.replace(/\.svg$/, ''));
-  assert.deepEqual(icons.filter((i) => !used.has(i)), []);
+  assert.deepEqual(icons.filter((i) => !all.includes(`>${loadIcon(i)}</svg>`)), []);
   for (const f of ['assets/Icone/README.md', 'assets/Marchio/README.md', 'assets/Marchio/icon.svg', 'assets/Marchio/icon-512.png']) {
     assert.ok(fs.existsSync(path.join(PROJECT, f)), f);
   }
@@ -99,7 +105,7 @@ test('every icon in assets/Icone is used by a preview, and the brand assets are 
 
 test('the three sample screens and the cover exist', () => {
   for (const d of ['ScreenClientManager', 'ScreenSociAll', 'ScreenVideo', 'Cover']) assert.ok(dirs.includes(d), d);
-  for (const d of ['ScreenClientManager', 'ScreenSociAll', 'ScreenVideo']) assert.match(read(SOURCES, `${d}.html`).split('\n')[0], / page -->$/, d);
+  for (const d of ['ScreenClientManager', 'ScreenSociAll', 'ScreenVideo']) assert.match(preview(d).split('\n')[0], / page -->$/, d);
 });
 
 test('every component class in the stylesheet is shown in at least one preview', () => {
@@ -109,6 +115,7 @@ test('every component class in the stylesheet is shown in at least one preview',
 });
 
 test('the public previews use invented names only', () => {
-  for (const d of dirs) assert.doesNotMatch(read(SOURCES, `${d}.html`), /Rugarli/i, d);
+  for (const d of dirs) assert.doesNotMatch(preview(d), /Rugarli/i, d);
+  for (const [name, text] of [...exampleSources, ...packageSources]) assert.doesNotMatch(text, /Rugarli/i, name);
   assert.doesNotMatch(read(PROJECT, 'tokens.json') + read(PROJECT, 'README.md'), /Rugarli/i);
 });

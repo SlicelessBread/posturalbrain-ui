@@ -1,0 +1,95 @@
+// Single entry point. No "use client" here: each file that needs the browser declares it itself,
+// so everything else stays usable from Server Components. Named re-exports only.
+export { cx } from './cx';
+export { fraction } from './fraction';
+export { Icon, renderIcon } from './Icon';
+export type { IconSize } from './Icon';
+export { ICONS } from './icons.generated';
+export type { IconName } from './icons.generated';
+export type { IconInput, LinkAs, StyleWithVars } from './types';
+
+export { Stack } from './layout/Stack';
+export { Row } from './layout/Row';
+export { Grid2 } from './layout/Grid2';
+export { Page } from './layout/Page';
+export { Frame } from './layout/Frame';
+export { List } from './layout/List';
+
+export { Button } from './actions/Button';
+export type { ButtonProps } from './actions/Button';
+export { IconButton } from './actions/IconButton';
+export type { IconButtonProps } from './actions/IconButton';
+export { Chip } from './actions/Chip';
+export type { ChipProps } from './actions/Chip';
+export { Dot } from './actions/Dot';
+export { Segmented } from './actions/Segmented';
+export type { SegmentedProps } from './actions/Segmented';
+
+export { ThemeSwitch } from './access/ThemeSwitch';
+
+export { applyThemeChoice, parseChoice, resolveTheme, themeScript, THEME_STORAGE_KEY } from './theme/theme';
+export type { Theme, ThemeChoice } from './theme/theme';
+export { THEME_COLORS } from './theme/colors.generated';
+export { ThemeScript } from './theme/ThemeScript';
+export { useTheme } from './theme/useTheme';
+
+export { Badge } from './feedback/Badge';
+export type { Tone } from './feedback/Badge';
+export { Banner } from './feedback/Banner';
+export { Toast } from './feedback/Toast';
+export { Progress } from './feedback/Progress';
+export { Spinner } from './feedback/Spinner';
+
+export { TopBar } from './navigation/TopBar';
+export { BottomNav } from './navigation/BottomNav';
+export type { BottomNavItem } from './navigation/BottomNav';
+export { Tabs } from './navigation/Tabs';
+export type { TabsProps } from './navigation/Tabs';
+export { PageHeader } from './navigation/PageHeader';
+export { PeriodSwitch } from './navigation/PeriodSwitch';
+
+export { Card } from './surfaces/Card';
+export { StatCard } from './surfaces/StatCard';
+export { MiniStat } from './surfaces/MiniStat';
+export { ListRow } from './surfaces/ListRow';
+export { Avatar } from './surfaces/Avatar';
+export { SectionTitle } from './surfaces/SectionTitle';
+export { KeyValue } from './surfaces/KeyValue';
+export type { KeyValueItem } from './surfaces/KeyValue';
+export { EmptyState } from './surfaces/EmptyState';
+export { Skeleton } from './surfaces/Skeleton';
+
+export { MoneyFigure } from './figures/MoneyFigure';
+export { YearBars } from './figures/YearBars';
+export type { YearBar } from './figures/YearBars';
+
+export type { FieldProps } from './forms/Field';
+export { TextField } from './forms/TextField';
+export { Select } from './forms/Select';
+export { DateField } from './forms/DateField';
+export { MoneyField } from './forms/MoneyField';
+export { SearchField } from './forms/SearchField';
+export { Checkbox } from './forms/Checkbox';
+export { Switch } from './forms/Switch';
+
+export { Sheet } from './overlays/Sheet';
+export { ConfirmDialog } from './overlays/ConfirmDialog';
+
+export { EVENT_ICONS, EVENT_KINDS, EVENT_LABELS } from './calendar/events';
+export type { EventKind } from './calendar/events';
+export { EventChip } from './calendar/EventChip';
+export { EventTag } from './calendar/EventTag';
+export { EventLegend } from './calendar/EventLegend';
+export { DayList, DayListDay } from './calendar/DayList';
+export { WeekColumns } from './calendar/WeekColumns';
+export type { WeekDay } from './calendar/WeekColumns';
+export { MonthGrid } from './calendar/MonthGrid';
+export type { MonthCell } from './calendar/MonthGrid';
+
+export { VideoCard } from './media/VideoCard';
+export { VideoPlayer } from './media/VideoPlayer';
+export { UploadZone } from './media/UploadZone';
+export { PlatformStatus } from './media/PlatformStatus';
+export type { PublishStatus } from './media/PlatformStatus';
+
+export { LoginScreen, LoginForm, LoginDivider } from './access/LoginScreen';

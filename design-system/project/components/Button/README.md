@@ -8,7 +8,7 @@ Il pulsante avvia un'azione: salvare, aggiungere, confermare, eliminare.
 - Il testo: un verbo e, se serve, l'oggetto («Salva percorso», «Aggiungi paziente»). Mai «OK» o «Invia».
 - Un'icona facoltativa prima del testo, a 24 px.
 - `disabled` quando l'azione non è possibile, con il motivo scritto vicino.
-- `aria-busy="true"` mentre l'azione è in corso: compare l'indicatore, e il testo cambia nel gerundio («Salvataggio…»).
+- `aria-busy="true"` insieme a `disabled` mentre l'azione è in corso: compare l'indicatore, il testo cambia nel gerundio («Salvataggio…») e il pulsante non si può premere una seconda volta, nemmeno da tastiera. Mantiene il suo aspetto: non si attenua come un pulsante disabilitato.
 - `pb-btn--block` per occupare tutta la larghezza, in fondo a un modulo o a un foglio.
 
 L'altezza è sempre di 44 px, anche nella variante piccola (`pb-btn--small`), che riduce solo testo e rientri.
