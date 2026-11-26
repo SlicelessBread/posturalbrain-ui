@@ -131,3 +131,36 @@ test('KeyValue and SectionTitle: empty and optional parts', () => {
   assert.match(html(ui.KeyValue, { items: [{ label: 'Totale', value: '900', numeric: true }] }), /<div><dt>Totale<\/dt><dd class="pb-num">900<\/dd><\/div>/);
   assert.equal(html(ui.SectionTitle, { count: 0 }, 'Video'), '<div class="pb-section-title"><h2 class="text-section">Video <span class="pb-section-title__count">0</span></h2></div>');
 });
+
+test('a field with an error is marked invalid and its control points at the message', () => {
+  for (const Field of [ui.TextField, ui.DateField, ui.MoneyField, ui.Select]) {
+    const out = html(Field, { label: 'Campo', error: 'Manca il valore', help: 'Aiuto' });
+    assert.match(out, /^<label class="pb-field pb-field--invalid">/);
+    const id = /aria-invalid="true" aria-describedby="([^"]+)"/.exec(out)?.[1];
+    assert.ok(id, 'control is not linked to a note');
+    assert.ok(out.includes(`<span id="${id}" class="pb-field__error text-caption">`), 'the id does not belong to the error text');
+    assert.doesNotMatch(out, /pb-field__help/, 'the error replaces the help');
+  }
+  const plain = html(ui.TextField, { label: 'Nome' });
+  assert.equal(plain, '<label class="pb-field"><span class="pb-field__label text-label">Nome</span><input type="text" class="pb-input"/></label>');
+  assert.match(html(ui.TextField, { label: 'Note', multiline: true, help: '64 di 2.200', helpNumeric: true }), /<textarea class="pb-input" aria-describedby="[^"]+"><\/textarea><span id="[^"]+" class="pb-field__help text-caption pb-num">/);
+  assert.match(html(ui.MoneyField, { label: 'Costo' }), /<input class="pb-input pb-num" type="text" inputMode="decimal" autoComplete="off"\/><span class="pb-input-group__suffix" aria-hidden="true">€<\/span>/i);
+});
+
+test('SearchField offers to clear only when it can and there is something to clear', () => {
+  const noop = () => {};
+  const clear = /aria-label="Cancella la ricerca"/;
+  assert.match(html(ui.SearchField, { label: 'Cerca', value: 'colom', onChange: noop, onClear: noop }), clear);
+  assert.doesNotMatch(html(ui.SearchField, { label: 'Cerca', value: '', onChange: noop, onClear: noop }), clear);
+  assert.doesNotMatch(html(ui.SearchField, { label: 'Cerca', value: 'colom', onChange: noop }), clear);
+  assert.match(html(ui.SearchField, { label: 'Cerca un paziente' }), /^<div class="pb-input-group pb-input-group--search">.*<input class="pb-input" type="search" aria-label="Cerca un paziente"/);
+});
+
+test('Checkbox and Switch: the label names the control, a description sits under it', () => {
+  assert.equal(html(ui.Checkbox, { label: 'Rinnovo', defaultChecked: true }), '<label class="pb-check"><input type="checkbox" data-pb-compact="" checked=""/><span>Rinnovo</span></label>');
+  assert.match(html(ui.Checkbox, { label: 'Pagata', description: 'Oggi' }), /<span class="pb-check__text">Pagata<span class="text-caption pb-subtle">Oggi<\/span><\/span>/);
+  const on = html(ui.Switch, { label: 'Notifiche', checked: true });
+  const id = /<span id="([^"]+)" class="pb-switch-row__text">Notifiche<\/span>/.exec(on)?.[1];
+  assert.ok(id && on.includes(`role="switch" aria-checked="true" aria-labelledby="${id}"`));
+  assert.match(html(ui.Switch, { label: 'Face ID', checked: false, disabled: true }), /aria-checked="false" aria-labelledby="[^"]+" disabled=""/);
+});

@@ -16,6 +16,7 @@ const OUT = '.render/parity';
 // differs fails the test, so the list stays true.
 export const EXPECTED = {
   Button: { aria: true, reason: 'a loading button is now also disabled, so the keyboard cannot fire it twice' },
+  SearchField: { pixels: true, aria: true, reason: 'one markup for the empty and the filled field: the input is named by aria-label instead of a hidden label text, and the placeholder now starts where typed text starts (it sat 8px further right)' },
 };
 
 const names = componentNames().filter((name) => hasExample(name) && fs.existsSync(fragmentPath(name)));
