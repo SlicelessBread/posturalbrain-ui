@@ -9,3 +9,5 @@ La conferma ferma la persona prima di un'azione che non si può annullare.
 - Il titolo come domanda che nomina la cosa («Eliminare Paolo Rinaldi?»), non «Sei sicuro?».
 - Una frase che dice cosa si perde, con i numeri («i suoi 2 percorsi e le 6 rate registrate»).
 - Due pulsanti: «Annulla» a sinistra, che riceve il fuoco all'apertura, e a destra l'azione con il suo verbo («Elimina»), in variante distruttiva.
+
+Compare e sparisce con una dissolvenza breve, insieme al velo.

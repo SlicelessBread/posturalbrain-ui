@@ -1,4 +1,4 @@
-<!-- @dsCard group="Azioni" height=200 subtitle="Due e tre scelte" -->
+<!-- @dsCard group="Azioni" height=200 subtitle="Due e tre scelte: tocca per provare" -->
 <!doctype html>
 <html lang="it">
 <head>
@@ -9,5 +9,16 @@
 </head>
 <body class="pb-app pb-app--inline">
 <div class="pb-stack"><div class="pb-segmented" role="group" aria-label="Vista dei post" style="--pb-count:2;--pb-index:0"><button type="button" aria-pressed="true" data-value="lista">Lista</button><button type="button" aria-pressed="false" data-value="calendario">Calendario</button></div><div class="pb-segmented" role="group" aria-label="Durata del percorso" style="--pb-count:3;--pb-index:1"><button type="button" aria-pressed="false" data-value="trimestrale">Trimestrale</button><button type="button" aria-pressed="true" data-value="semestrale">Semestrale</button><button type="button" aria-pressed="false" data-value="annuale">Annuale</button></div></div>
+<script>
+// Demo only: chooses the option that is tapped.
+  document.querySelectorAll('.pb-segmented').forEach((group) => {
+    group.addEventListener('click', (event) => {
+      const chosen = event.target.closest('button');
+      if (!chosen) return;
+      [...group.children].forEach((option) => option.setAttribute('aria-pressed', String(option === chosen)));
+      group.style.setProperty('--pb-index', [...group.children].indexOf(chosen));
+    });
+  });
+</script>
 </body>
 </html>

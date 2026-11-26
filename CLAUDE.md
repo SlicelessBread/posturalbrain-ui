@@ -40,6 +40,12 @@ run `build:previews`. `npm test` fails when a generated file is stale.
   the choice is auto; `useTheme` reads and changes it. `<html>` is the run-time source of truth.
 - **Overlays**: `Sheet` and `ConfirmDialog` are real `<dialog>` elements driven by `useModalDialog` (showModal,
   a veil element instead of `::backdrop`, one dismissal callback per close made by the person).
+- **Motion** lives in the stylesheet. Entries use `@starting-style`; exits use `data-closing`, set by the component,
+  which removes or closes the element once `settle()` (`src/motion/`) reports the transitions over: one path for
+  every browser, because Safari cannot animate a `<dialog>` out of the top layer. Sliding highlights read
+  `--pb-index` / `--pb-count` from the component. Anything that travels is declared inside
+  `prefers-reduced-motion: no-preference`; with reduced motion only colour changes and short fades remain. The rules
+  for designers are in `design-system/project/README.md`, section «Movimento».
 - **The Design System page** (a Claude artifact, linked in the README) is published from
   `design-system/project/`. Its previews are generated: `examples/<Name>.tsx` rendered to static markup by
   `scripts/build-previews.mjs`. Only the cover is a hand-written fragment. Changing a component therefore changes

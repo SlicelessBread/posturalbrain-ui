@@ -8,3 +8,5 @@ Le linguette dividono il contenuto di una pagina in sezioni dello stesso livello
 - Un contenitore `pb-tabs` con `role="tablist"` e `aria-label`.
 - Un `button` con `role="tab"` per sezione, `aria-selected="true"` su quella aperta.
 - Il pannello mostrato sotto, con `role="tabpanel"`.
+
+La riga sotto la linguetta aperta scivola verso quella nuova dove il browser lo consente (iOS 26 e successivi); altrove salta.

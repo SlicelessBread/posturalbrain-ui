@@ -1,4 +1,4 @@
-<!-- @dsCard group="Finestre" height=400 subtitle="Conferma di un'azione che non si può annullare" -->
+<!-- @dsCard group="Finestre" height=400 subtitle="Conferma di un'azione che non si può annullare: annulla e riapri" -->
 <!doctype html>
 <html lang="it">
 <head>
@@ -8,6 +8,26 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700;800&family=Red+Hat+Text:wght@400;500;600&display=swap">
 </head>
 <body class="pb-app pb-app--inline">
-<div class="pb-frame" style="min-height:360px"><div class="pb-sheet-backdrop"></div><dialog class="pb-dialog" role="alertdialog" aria-labelledby="_R_0_" aria-describedby="_R_0H1_" open=""><h2 id="_R_0_" class="text-section">Eliminare Paolo Rinaldi?</h2><p id="_R_0H1_" class="pb-muted">Verranno eliminati anche i suoi 2 percorsi e le 6 rate registrate. Non si può annullare.</p><div class="pb-dialog__actions"><button type="button" class="pb-btn">Annulla</button><button type="button" class="pb-btn pb-btn--danger"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>Elimina</button></div></dialog></div>
+<div class="pb-frame" style="min-height:360px"><div class="pb-stack" style="padding:var(--space-4)"><button type="button" class="pb-btn pb-btn--danger" data-demo-open="true"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>Elimina paziente</button></div><div class="pb-sheet-backdrop"></div><dialog class="pb-dialog" role="alertdialog" aria-labelledby="_R_2_" aria-describedby="_R_2H1_" open=""><h2 id="_R_2_" class="text-section">Eliminare Paolo Rinaldi?</h2><p id="_R_2H1_" class="pb-muted">Verranno eliminati anche i suoi 2 percorsi e le 6 rate registrate. Non si può annullare.</p><div class="pb-dialog__actions"><button type="button" class="pb-btn">Annulla</button><button type="button" class="pb-btn pb-btn--danger"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>Elimina</button></div></dialog></div>
+<script>
+// Demo only: opens and closes the dialog drawn in this preview.
+  const dialog = document.querySelector('.pb-dialog');
+  const veil = document.querySelector('.pb-sheet-backdrop');
+  const ended = (el) => Promise.all(el.getAnimations().map((a) => a.finished.catch(() => {})));
+  const close = async () => {
+    dialog.setAttribute('data-closing', '');
+    veil.setAttribute('data-closing', '');
+    await Promise.all([ended(dialog), ended(veil)]);
+    dialog.removeAttribute('open');
+    veil.hidden = true;
+    dialog.removeAttribute('data-closing');
+    veil.removeAttribute('data-closing');
+  };
+  dialog.querySelectorAll('.pb-dialog__actions button').forEach((button) => button.addEventListener('click', close));
+  document.querySelector('[data-demo-open]').addEventListener('click', () => {
+    veil.hidden = false;
+    dialog.setAttribute('open', '');
+  });
+</script>
 </body>
 </html>

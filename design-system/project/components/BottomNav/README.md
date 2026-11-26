@@ -9,4 +9,4 @@ La barra in basso porta alle sezioni principali dell'app con un tocco del pollic
 - Un link per sezione, con icona a 24 px e l'etichetta dentro uno `span`: una parola sola.
 - Lo spazio in fondo alla pagina perché l'ultimo contenuto non resti sotto la barra: `padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom))` sul contenitore che scorre.
 
-La barra è fissa in fondo, rispetta l'area sicura del telefono ed è uno dei pochi elementi con sfocatura vera.
+La barra è fissa in fondo, rispetta l'area sicura del telefono ed è uno dei pochi elementi con sfocatura vera. La pastiglia dietro l'icona attiva scivola da una voce all'altra: per questo la barra deve restare la stessa da una pagina all'altra (in Next, nel `layout`), con `--pb-count` e `--pb-index` sul contenitore, che il componente `BottomNav` mette da sé.

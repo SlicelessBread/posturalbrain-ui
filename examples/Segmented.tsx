@@ -1,6 +1,19 @@
 import { Segmented, Stack } from '../src';
 
-export const card = { group: 'Azioni', height: 200, subtitle: 'Due e tre scelte' };
+export const card = { group: 'Azioni', height: 200, subtitle: 'Due e tre scelte: tocca per provare' };
+
+// The preview is static markup: this stands in for the state the app keeps.
+export const script = `
+  // Demo only: chooses the option that is tapped.
+  document.querySelectorAll('.pb-segmented').forEach((group) => {
+    group.addEventListener('click', (event) => {
+      const chosen = event.target.closest('button');
+      if (!chosen) return;
+      [...group.children].forEach((option) => option.setAttribute('aria-pressed', String(option === chosen)));
+      group.style.setProperty('--pb-index', [...group.children].indexOf(chosen));
+    });
+  });
+`;
 
 export default function Example() {
   return (

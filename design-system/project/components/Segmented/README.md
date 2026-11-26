@@ -8,3 +8,4 @@ La scelta a segmenti fa scegliere una sola tra due o tre opzioni che stanno sull
 - Un contenitore `pb-segmented` con `role="group"` e `aria-label` che dice cosa si sta scegliendo.
 - Un `button` per opzione, con `aria-pressed="true"` su quella attiva e `"false"` sulle altre.
 - Etichette di una parola, tutte della stessa lunghezza circa: i segmenti hanno larghezza uguale.
+- Sul contenitore, `--pb-count` (quante opzioni) e `--pb-index` (la posizione di quella attiva, da 0): l'evidenziazione è un solo elemento che scivola dall'una all'altra. Il componente `Segmented` li mette da sé.

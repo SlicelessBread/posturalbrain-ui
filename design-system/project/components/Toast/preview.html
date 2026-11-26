@@ -1,4 +1,4 @@
-<!-- @dsCard group="Avvisi" height=300 subtitle="Riuscito, errore con azione, neutro" -->
+<!-- @dsCard group="Avvisi" height=370 subtitle="Riuscito, errore con azione, neutro: nascondili e mostrali di nuovo" -->
 <!doctype html>
 <html lang="it">
 <head>
@@ -8,6 +8,25 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700;800&family=Red+Hat+Text:wght@400;500;600&display=swap">
 </head>
 <body class="pb-app pb-app--inline">
-<div class="pb-stack"><div class="pb-frame"><div class="pb-toast pb-toast--ok" role="status"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span class="pb-toast__text">Percorso salvato</span></div></div><div class="pb-frame"><div class="pb-toast pb-toast--danger" role="alert"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span class="pb-toast__text">Non sono riuscito a salvare: manca la connessione.</span><button type="button" class="pb-btn pb-btn--ghost pb-btn--small">Riprova</button></div></div><div class="pb-frame"><div class="pb-toast" role="status"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="pb-toast__text">Link copiato</span></div></div></div>
+<div class="pb-stack"><button type="button" class="pb-btn" data-demo-toggle="true">Nascondi gli avvisi</button><div class="pb-frame"><div class="pb-toast pb-toast--ok" role="status"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span class="pb-toast__text">Percorso salvato</span></div></div><div class="pb-frame"><div class="pb-toast pb-toast--danger" role="alert"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span class="pb-toast__text">Non sono riuscito a salvare: manca la connessione.</span><button type="button" class="pb-btn pb-btn--ghost pb-btn--small">Riprova</button></div></div><div class="pb-frame"><div class="pb-toast" role="status"><svg class="pb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="pb-toast__text">Link copiato</span></div></div></div>
+<script>
+// Demo only: hides the toasts of this preview and shows them again.
+  const toasts = [...document.querySelectorAll('.pb-toast')];
+  const ended = (el) => Promise.all(el.getAnimations().map((a) => a.finished.catch(() => {})));
+  let shown = true;
+  const toggle = document.querySelector('[data-demo-toggle]');
+  toggle.addEventListener('click', async () => {
+    shown = !shown;
+    toggle.textContent = shown ? 'Nascondi gli avvisi' : 'Mostra gli avvisi';
+    if (shown) {
+      toasts.forEach((toast) => { toast.hidden = false; });
+      return;
+    }
+    toasts.forEach((toast) => toast.setAttribute('data-closing', ''));
+    await Promise.all(toasts.map(ended));
+    if (shown) return;
+    toasts.forEach((toast) => { toast.hidden = true; toast.removeAttribute('data-closing'); });
+  });
+</script>
 </body>
 </html>
