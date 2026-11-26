@@ -47,3 +47,18 @@ export { Tabs } from './navigation/Tabs';
 export type { TabsProps } from './navigation/Tabs';
 export { PageHeader } from './navigation/PageHeader';
 export { PeriodSwitch } from './navigation/PeriodSwitch';
+
+export { Card } from './surfaces/Card';
+export { StatCard } from './surfaces/StatCard';
+export { MiniStat } from './surfaces/MiniStat';
+export { ListRow } from './surfaces/ListRow';
+export { Avatar } from './surfaces/Avatar';
+export { SectionTitle } from './surfaces/SectionTitle';
+export { KeyValue } from './surfaces/KeyValue';
+export type { KeyValueItem } from './surfaces/KeyValue';
+export { EmptyState } from './surfaces/EmptyState';
+export { Skeleton } from './surfaces/Skeleton';
+
+export { MoneyFigure } from './figures/MoneyFigure';
+export { YearBars } from './figures/YearBars';
+export type { YearBar } from './figures/YearBars';

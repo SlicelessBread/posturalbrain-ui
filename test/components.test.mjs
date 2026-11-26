@@ -103,3 +103,31 @@ test('PageHeader and PeriodSwitch: optional parts appear only when given', () =>
   assert.doesNotMatch(month, /pb-period--week|Oggi/);
   assert.match(html(ui.PeriodSwitch, { week: true, label: 'x', prevLabel: 'p', nextLabel: 'n' }), /class="pb-period pb-period--week".*<button type="button" class="pb-btn pb-btn--small">Oggi<\/button><\/div>$/);
 });
+
+test('YearBars draws nothing it cannot measure: zeros, a loss, an empty year', () => {
+  const values = (bars, max) => [...html(ui.YearBars, { title: 'x', bars, max }).matchAll(/--value:([^;"]*)/g)].map((m) => m[1]);
+  const bar = (value) => ({ label: 'M', value, description: 'm' });
+  assert.deepEqual(values([bar(0), bar(0)]), ['0', '0']);
+  assert.deepEqual(values([bar(-500), bar(1000), bar(500)]), ['0', '1', '0.5']);
+  assert.deepEqual(values([bar(NaN), bar(200)]), ['0', '1']);
+  assert.deepEqual(values([bar(2810)], 5400), ['0.52']);
+  assert.equal(html(ui.YearBars, { title: 'Anno', bars: [] }), '<figure class="pb-bars"><figcaption class="pb-row pb-row--between"><span class="text-body-strong">Anno</span></figcaption><ol class="pb-bars__plot"></ol></figure>');
+  assert.doesNotMatch(html(ui.YearBars, { title: 'x', bars: [bar(NaN), bar(-1)], max: NaN }), /NaN/);
+});
+
+test('StatCard is a button only when it can be pressed; ListRow is a link only when it goes somewhere', () => {
+  const pressed = html(ui.StatCard, { icon: 'megaphone', label: 'Pubblicità', value: '350', onClick() {} });
+  assert.match(pressed, /^<button type="button" class="pb-stat pb-stat--interactive">.*<span class="pb-stat__body">.*<\/span><svg class="pb-icon"[^>]*>.*<\/svg><\/button>$/);
+  assert.doesNotMatch(pressed, /<div/);
+  assert.match(html(ui.StatCard, { icon: 'wallet', label: 'Lordo', value: '6.480', tone: 'highlight' }), /^<div class="pb-stat pb-stat--highlight">.*<div class="pb-stat__body">.*class="pb-stat__value text-figure-lg pb-num"/);
+  assert.equal(html(ui.ListRow, { title: 'Anna' }), '<li><div class="pb-list-row"><span class="pb-list-row__body"><span class="pb-list-row__title text-body-strong">Anna</span></span></div></li>');
+  assert.match(html(ui.ListRow, { title: 'Anna', href: '/pazienti/1' }), /^<li><a class="pb-list-row" href="\/pazienti\/1">.*<span class="pb-list-row__trail"><svg/);
+  assert.match(html(ui.Card, { href: '/x' }, 'Apri'), /^<a class="pb-card pb-card--interactive" href="\/x">Apri<\/a>$/);
+  assert.equal(html(ui.Card, { raised: true }, 'Testo'), '<section class="pb-card pb-card--raised">Testo</section>');
+});
+
+test('KeyValue and SectionTitle: empty and optional parts', () => {
+  assert.equal(html(ui.KeyValue, { items: [] }), '<dl class="pb-kv"></dl>');
+  assert.match(html(ui.KeyValue, { items: [{ label: 'Totale', value: '900', numeric: true }] }), /<div><dt>Totale<\/dt><dd class="pb-num">900<\/dd><\/div>/);
+  assert.equal(html(ui.SectionTitle, { count: 0 }, 'Video'), '<div class="pb-section-title"><h2 class="text-section">Video <span class="pb-section-title__count">0</span></h2></div>');
+});
