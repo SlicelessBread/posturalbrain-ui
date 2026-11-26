@@ -31,3 +31,43 @@ test('a closed <dialog> sheet or confirm takes no space, and an open one shows',
     await browser.close();
   }
 });
+
+test('layout details: sign-in fills a real screen, a still unmeasured bar is not a measure, the row card keeps disc and duration apart', { timeout: 60_000 }, async () => {
+  const { createRequire } = await import('node:module');
+  const fs = await import('node:fs');
+  const { chromium } = createRequire(import.meta.url)('playwright');
+  const css = fs.readFileSync('styles.css', 'utf8');
+  const body = (name) => /<body[^>]*>([\s\S]*)<\/body>/.exec(fs.readFileSync(`design-system/project/components/${name}/preview.html`, 'utf8'))[1];
+  const doc = (inner) => `<html data-theme="dark"><head><style>${css}</style></head><body class="pb-app">${inner}</body></html>`;
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 390, height: 700 } });
+
+    await page.setContent(doc('<main class="pb-login"><h1 class="text-display">PosturalBrain</h1></main>'));
+    assert.equal(await page.evaluate(() => document.querySelector('.pb-login').getBoundingClientRect().height), 700);
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setContent(doc(body('Progress')));
+    const bar = await page.evaluate(() => {
+      const track = document.querySelector('.pb-progress--indeterminate');
+      return { track: track.getBoundingClientRect().width, fill: track.firstElementChild.getBoundingClientRect().width };
+    });
+    assert.equal(bar.fill, bar.track, 'with reduced motion the unmeasured bar must not stop at a part of the track');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+
+    // The widest duration in every card, at the phone widths where the grid has two narrow columns.
+    for (const width of [390, 375, 360, 320]) {
+      await page.setViewportSize({ width, height: 700 });
+      await page.setContent(doc(`<main class="pb-page">${body('VideoCard')}</main>`));
+      const apart = await page.evaluate(() => [...document.querySelectorAll('.pb-video-card')].map((card) => {
+        card.querySelector('.pb-video-card__duration').textContent = '1:08:40';
+        const a = card.querySelector('.pb-video-card__play').getBoundingClientRect();
+        const b = card.querySelector('.pb-video-card__duration').getBoundingClientRect();
+        return a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top;
+      }));
+      assert.deepEqual(apart, apart.map(() => true), `disc and duration overlap at ${width}px`);
+    }
+  } finally {
+    await browser.close();
+  }
+});

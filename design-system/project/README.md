@@ -77,3 +77,13 @@ L'app da cui nasce il sistema ha pulsanti, riquadri, cifre, liste, campi, fogli,
 ## Cambiare le grafiche
 
 Le grafiche dello studio cambieranno. Per un nuovo colore d'accento si cambiano `--accent`, `--accent-hi`, `--accent-strong`, `--accent-soft`, `--on-accent`, `--focus`, `--glow` e `--shadow-accent`, nei due temi, e si ricontrolla il contrasto. Per un nuovo fondo si cambiano `--bg-0`, `--bg-1`, `--bg-2`. Per un nuovo carattere si cambiano le due famiglie in `tokens.json`. I componenti non si toccano.
+
+## Nel codice
+
+Le app non copiano questi file: installano il pacchetto `posturalbrain-ui`, che contiene lo stesso foglio di stile, le stesse variabili e un componente React per ogni scheda di questa pagina. Le anteprime che vedi qui sono generate da quei componenti: ciò che la pagina mostra è ciò che il pacchetto disegna.
+
+- Lo stile entra con una riga, `import 'posturalbrain-ui/styles.css'`, e la classe `pb-app` sul `body`.
+- I componenti hanno il nome della scheda: `Button`, `ListRow`, `Sheet`, `WeekColumns`. Le classi `pb-…` restano il modo per comporre ciò che un componente non copre (`pb-muted`, `pb-num`, gli stili di testo `text-…`).
+- Il tema scelto dalla persona («Automatico», «Chiaro», «Scuro») è ricordato sul telefono; `ThemeScript` lo applica prima che la pagina si veda.
+
+Installazione, righe da copiare e modo di aggiornare sono nel README del repository `SlicelessBread/posturalbrain-ui`. Quando qualcosa cambia, cambia lì: poi si rigenerano le anteprime e si ripubblica questa pagina.

@@ -1247,6 +1247,11 @@ textarea.pb-input { resize: vertical; }
   animation: pb-slide 1300ms ease-in-out infinite;
 }
 
+/* Without motion a still 30% piece would read as a measure: fill the track faintly instead. */
+@media (prefers-reduced-motion: reduce) {
+  .pb-progress--indeterminate > span { width: 100%; opacity: 0.45; }
+}
+
 .pb-spinner {
   display: inline-block;
   flex: none;
@@ -1575,8 +1580,9 @@ a.pb-video-card__thumb { color: var(--on-media); }
   position: relative;
   display: grid;
   place-items: center;
-  width: var(--tap-min);
-  height: var(--tap-min);
+  /* 40px and a duration 4px from the corner: on a two-column phone grid the two never meet, whatever the duration. */
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-pill);
   background: var(--media-scrim);
 }
@@ -1585,8 +1591,8 @@ a.pb-video-card__thumb { color: var(--on-media); }
 
 .pb-video-card__duration {
   position: absolute;
-  right: var(--space-2);
-  bottom: var(--space-2);
+  right: var(--space-1);
+  bottom: var(--space-1);
   padding: 2px var(--space-2);
   border-radius: 7px;
   background: var(--media-scrim);
@@ -1615,6 +1621,9 @@ a.pb-video-card__thumb { color: var(--on-media); }
 .pb-video-card--row { grid-template-columns: 132px minmax(0, 1fr) auto; gap: 0 var(--space-3); align-items: center; }
 .pb-video-card--row > .pb-video-card__thumb { grid-column: auto; }
 .pb-video-card--row > .pb-video-card__fav { margin: 0 -8px 0 0; }
+/* The small thumbnail of a row has no room for a centred disc and the duration: the disc moves aside. */
+.pb-video-card--row .pb-video-card__play { place-self: center start; width: 32px; height: 32px; margin-left: var(--space-2); }
+.pb-video-card--row .pb-video-card__play > .pb-icon { width: 16px; height: 16px; margin-left: 1px; }
 
 .pb-player { display: grid; gap: var(--space-3); margin: 0; min-width: 0; }
 
@@ -1744,7 +1753,9 @@ label.pb-upload { cursor: pointer; }
   align-content: center;
   justify-items: start;
   gap: var(--space-2);
-  min-height: 100%;
+  /* The whole screen on a real page; the dynamic unit follows the browser bars on phones. */
+  min-height: 100vh;
+  min-height: 100dvh;
   padding: var(--space-8) var(--space-5);
 }
 

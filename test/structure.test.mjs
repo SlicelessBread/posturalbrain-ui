@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildComponentPreview, examplePath, hasExample, loadIcon } from '../scripts/build-previews.mjs';
+import { buildComponentPreview, componentNames, examplePath, hasExample, loadIcon } from '../scripts/build-previews.mjs';
 
 const PROJECT = 'design-system/project';
 const COMPONENTS = path.join(PROJECT, 'components');
@@ -37,7 +37,13 @@ test('every preview starts with the card marker and uses no forbidden element', 
   }
 });
 
-test('every preview is generated from its source (React example or fragment) and is up to date', async () => {
+test('every component is drawn by a React example; only the cover is a hand-written fragment', () => {
+  assert.deepEqual(dirs.filter((d) => !hasExample(d)), ['Cover']);
+  assert.deepEqual(fs.readdirSync('design-system/previews'), ['Cover.html']);
+  assert.deepEqual(componentNames(), [...dirs].sort());
+});
+
+test('every preview is generated from its source and is up to date', async () => {
   for (const d of dirs) assert.equal(preview(d), await buildComponentPreview(d), `${d}: run npm run build:previews`);
 });
 

@@ -1,8 +1,8 @@
 // Builds components/<Comp>/preview.html.
-// The source of a preview is examples/<Comp>.tsx when it exists: the React components of the package,
-// rendered to static markup, so the page shows exactly what the package draws.
-// Otherwise it is a hand-written fragment in design-system/previews/: the card marker on line 1 followed
-// by markup, where {{icon:name}} inlines an icon from assets/Icone.
+// The source of a preview is examples/<Comp>.tsx: the React components of the package rendered to
+// static markup, so the page shows exactly what the package draws.
+// The cover is the one exception: it is not a component, and stays a hand-written fragment in
+// design-system/previews/ (the card marker on line 1, then markup; {{icon:name}} inlines an icon).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
