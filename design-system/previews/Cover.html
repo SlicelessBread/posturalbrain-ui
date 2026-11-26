@@ -1,0 +1,48 @@
+<!-- @dsCard height=288 -->
+<style>
+  .cv { position: relative; width: 960px; height: 288px; overflow: hidden; background: var(--bg-0); }
+  .cv svg { position: absolute; inset: 0; }
+  .cv-deep { fill: var(--bg-2); rx: var(--radius-lg); }
+  .cv-accent { fill: var(--accent-strong); rx: var(--radius-lg); }
+  .cv-hi { fill: var(--accent-hi); }
+  .cv-tint { fill: var(--media); rx: var(--radius-lg); }
+  .cv-pill-hi { fill: var(--accent-hi); }
+  .cv-pill-accent { fill: var(--accent-strong); }
+  .cv-pill-ground { fill: var(--bg-0); }
+  .cv-text { position: absolute; left: var(--space-7); right: var(--space-7); bottom: var(--space-6); display: grid; gap: var(--space-2); }
+  .cv-name { margin: 0; color: var(--text); font-family: var(--font-display); font-size: 64px; line-height: 0.95; font-weight: 800; letter-spacing: -0.02em; }
+  .cv-tag { margin: 0; color: var(--text-2); font-family: var(--font-text); font-size: 14px; line-height: 20px; font-weight: 500; }
+</style>
+<div class="cv">
+  <svg viewBox="0 0 960 288" width="960" height="288" aria-hidden="true">
+    <!-- blocks: bg-2 280x112, accent-strong 176x112, accent-hi disc 112, media 280x112, corners radius-lg
+         arrangement: one top band of unequal blocks (the name is too wide for the side zone at 64px)
+         pattern: pills and discs, because the system is soft glass with pill controls and large radii
+         steps: gaps space-4 (16), pill height space-4 (16) and space-6 (24), pitch space-7 (32), rx = half the short side -->
+    <rect class="cv-deep" x="32" y="24" width="280" height="112"/>
+    <rect class="cv-accent" x="328" y="24" width="176" height="112"/>
+    <rect class="cv-hi" x="520" y="24" width="112" height="112" rx="56"/>
+    <rect class="cv-tint" x="648" y="24" width="280" height="112"/>
+    <rect class="cv-pill-hi" x="56" y="48" width="96" height="16" rx="8"/>
+    <rect class="cv-pill-accent" x="168" y="48" width="48" height="16" rx="8"/>
+    <rect class="cv-pill-accent" x="56" y="72" width="64" height="16" rx="8"/>
+    <rect class="cv-pill-hi" x="136" y="72" width="128" height="16" rx="8"/>
+    <rect class="cv-pill-hi" x="56" y="96" width="32" height="16" rx="8"/>
+    <rect class="cv-pill-accent" x="104" y="96" width="96" height="16" rx="8"/>
+    <rect class="cv-pill-ground" x="352" y="68" width="128" height="24" rx="12"/>
+    <rect class="cv-pill-ground" x="672" y="44" width="24" height="24" rx="12"/>
+    <rect class="cv-pill-accent" x="704" y="44" width="24" height="24" rx="12"/>
+    <rect class="cv-pill-ground" x="736" y="44" width="24" height="24" rx="12"/>
+    <rect class="cv-pill-ground" x="768" y="44" width="24" height="24" rx="12"/>
+    <rect class="cv-pill-accent" x="800" y="44" width="24" height="24" rx="12"/>
+    <rect class="cv-pill-ground" x="832" y="44" width="24" height="24" rx="12"/>
+    <rect class="cv-pill-ground" x="864" y="44" width="24" height="24" rx="12"/>
+    <rect class="cv-pill-accent" x="672" y="92" width="88" height="24" rx="12"/>
+    <rect class="cv-pill-ground" x="768" y="92" width="56" height="24" rx="12"/>
+    <rect class="cv-pill-ground" x="832" y="92" width="56" height="24" rx="12"/>
+  </svg>
+  <div class="cv-text">
+    <h1 class="cv-name">POSTURALBRAIN</h1>
+    <p class="cv-tag">Un solo linguaggio per le app dello studio: gestione, social, esercizi.</p>
+  </div>
+</div>

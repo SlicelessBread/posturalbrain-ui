@@ -1,0 +1,31 @@
+<!-- @dsCard group="Schermate" height=820 width=390 page -->
+<header class="pb-topbar">
+  <div class="pb-topbar__brand"><span class="pb-topbar__mark" aria-hidden="true">{{icon:send:sm}}</span>SociAll</div>
+  <div class="pb-topbar__actions"><button class="pb-icon-btn pb-icon-btn--ghost" type="button" aria-label="Account collegati">{{icon:link}}</button></div>
+</header>
+<main class="pb-page">
+  <header class="pb-page-head"><div class="pb-page-head__text"><h1 class="pb-page-head__title text-title">Nuovo post</h1><p class="pb-page-head__sub text-label">Un video, una descrizione, quattro piattaforme</p></div></header>
+  <div class="pb-upload pb-upload--done"><div class="pb-upload__file"><span class="pb-upload__icon" aria-hidden="true">{{icon:circle-check}}</span><span class="pb-upload__name"><strong class="text-body-strong">esercizi-lombari-novembre.mp4</strong><span class="text-label pb-muted pb-num">780 MB · 2 min 14 s · verticale</span></span><button class="pb-btn pb-btn--small" type="button">Sostituisci</button></div></div>
+  <div class="pb-banner pb-banner--warn" role="status">{{icon:triangle-alert}}<div class="pb-banner__body"><strong>Su Facebook uscirà come video normale</strong><p>I Reel di Facebook si fermano a 90 secondi; questo video dura 2 minuti e 14.</p></div></div>
+  <label class="pb-field"><span class="pb-field__label text-label">Descrizione</span><textarea class="pb-input" rows="4">Tre esercizi per sbloccare la zona lombare, da fare al mattino prima di sederti alla scrivania.</textarea><span class="pb-field__help text-caption pb-num">96 di 2.200 caratteri</span></label>
+  <div class="pb-stack pb-stack--tight">
+    <span id="platforms" class="text-label pb-muted">Dove pubblicare</span>
+    <div class="pb-row" role="group" aria-labelledby="platforms">
+      <button class="pb-chip" type="button" aria-pressed="true">{{icon:check:sm}}YouTube</button>
+      <button class="pb-chip" type="button" aria-pressed="true">{{icon:check:sm}}Instagram</button>
+      <button class="pb-chip" type="button" aria-pressed="true">{{icon:check:sm}}Facebook</button>
+      <button class="pb-chip" type="button" aria-pressed="false">TikTok</button>
+    </div>
+  </div>
+  <div class="pb-stack pb-stack--tight">
+    <span id="when" class="text-label pb-muted">Quando</span>
+    <div class="pb-segmented" role="group" aria-labelledby="when"><button type="button" aria-pressed="false">Subito</button><button type="button" aria-pressed="true">Programma</button></div>
+    <label class="pb-field"><span class="pb-field__label text-label">Giorno</span><span class="pb-input-group"><input class="pb-input" type="date" value="2026-12-01"><span class="pb-input-group__suffix" aria-hidden="true">{{icon:calendar-days}}</span></span></label>
+  </div>
+  <button class="pb-btn pb-btn--primary pb-btn--block" type="button">Programma il post</button>
+</main>
+<nav class="pb-bottomnav" aria-label="Sezioni">
+  <a href="#" aria-current="page">{{icon:plus}}<span>Nuovo</span></a>
+  <a href="#">{{icon:film}}<span>Post</span></a>
+  <a href="#">{{icon:calendar-days}}<span>Calendario</span></a>
+</nav>

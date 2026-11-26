@@ -1,0 +1,13 @@
+{
+  "name": "posturalbrain-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "POSTURALBRAIN design system: tokens, styles and components shared by the apps",
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "check:render": "node scripts/render-check.mjs",
+    "tokens:css": "node scripts/tokens-css.mjs",
+    "build:previews": "node scripts/build-previews.mjs"
+  }
+}
