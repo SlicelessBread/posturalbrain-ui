@@ -55,7 +55,12 @@ Tags are created by `.github/workflows/release.yml`, never by hand; the numberin
 - Every merge into `main` that touches what the package ships (`src/`, `styles.css`, `tokens.json`,
   `package.json`) gets a **pre-release** automatically: `v0.0.2-pre.1`, `v0.0.2-pre.2`, …
 - A **release** is made only on request (the workflow's "Run workflow", kind `release`): it raises the number,
-  writes it into `package.json` with a commit on `main`, tags it and publishes it.
+  writes it into `package.json` with a commit on `main`, tags it and publishes it. The same button with kind
+  `pre-release` makes a pre-release of the current `main` by hand.
+- Pre-releases prepare the next `patch`: if the release then raises another number (`v0.1.0` after
+  `v0.0.3-pre.2`), the names differ and that is fine.
+- Runs are queued one at a time, and GitHub keeps only the newest waiting run: after starting a release, check
+  that its run finished and that the tag exists.
 
 **Always advise on the release.** At the end of any work that changes what the package ships, tell the owner, in
 the pull request (the template has the section) and in the conversation:

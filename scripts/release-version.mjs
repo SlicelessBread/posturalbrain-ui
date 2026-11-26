@@ -42,7 +42,12 @@ export function nextTag({ tags, packageVersion, kind, bump = 'patch' }) {
 
   const release = `v${next.join('.')}`;
   if (kind === 'release') return release;
-  const counters = tags.filter((tag) => tag.startsWith(`${release}-pre.`)).map((tag) => Number(tag.slice(release.length + 5))).filter(Number.isInteger);
+  // Only plain whole numbers count: "v0.0.2-pre.", "-pre.1e3" or "-pre.x" are somebody's own tags, not ours.
+  const counters = tags
+    .filter((tag) => tag.startsWith(`${release}-pre.`))
+    .map((tag) => tag.slice(release.length + 5))
+    .filter((counter) => /^\d+$/.test(counter) && Number.isSafeInteger(Number(counter)))
+    .map(Number);
   return `${release}-pre.${Math.max(0, ...counters) + 1}`;
 }
 

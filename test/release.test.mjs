@@ -32,6 +32,19 @@ test('the highest release counts, whatever the order and whatever else is tagged
   assert.equal(next(tags, 'prerelease'), 'v0.0.11-pre.5', 'the counter follows the highest one, even with gaps');
 });
 
+test('counters are numbers, not text: 10 comes after 9, and odd hand-made tags do not count', () => {
+  assert.equal(next(['v0.0.1', 'v0.0.2-pre.9', 'v0.0.2-pre.10'], 'prerelease'), 'v0.0.2-pre.11');
+  assert.equal(next(['v0.0.1', 'v0.0.2-pre.10', 'v0.0.2-pre.9'], 'prerelease'), 'v0.0.2-pre.11');
+  assert.equal(next(['v0.0.1', 'v0.0.2-pre.', 'v0.0.2-pre.1e3', 'v0.0.2-pre.0x10', 'v0.0.2-pre.3'], 'prerelease'), 'v0.0.2-pre.4');
+  assert.equal(next(['v0.0.9', 'v0.0.10'], 'release'), 'v0.0.11');
+});
+
+test('right after a release, when package.json holds the released version, the next step is still one up', () => {
+  assert.equal(next(['v0.0.3'], 'prerelease', 'patch', '0.0.3'), 'v0.0.4-pre.1');
+  assert.equal(next(['v0.0.3', 'v0.0.4-pre.1'], 'prerelease', 'patch', '0.0.3'), 'v0.0.4-pre.2');
+  assert.equal(next(['v0.0.3', 'v0.0.4-pre.2'], 'release', 'minor', '0.0.3'), 'v0.1.0');
+});
+
 test('a version already moved ahead in package.json is the next release', () => {
   assert.equal(next(['v0.0.3'], 'release', 'patch', '0.1.0'), 'v0.1.0');
   assert.equal(next(['v0.0.3'], 'prerelease', 'patch', '0.1.0'), 'v0.1.0-pre.1');

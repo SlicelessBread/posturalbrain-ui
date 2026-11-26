@@ -103,8 +103,10 @@ Le etichette le crea l'azione `Release` del repository, mai a mano.
 
 | | Quando nasce | Nome | Esempio |
 |---|---|---|---|
-| **Pre-release** | Da sola, a ogni unione su `main` che tocca `src/`, `styles.css`, `tokens.json` o `package.json` | La release che prepara, più un contatore proprio | `v0.0.2-pre.1`, `v0.0.2-pre.2` |
+| **Pre-release** | Da sola, a ogni unione su `main` che tocca `src/`, `styles.css`, `tokens.json` o `package.json`; oppure su richiesta, dallo stesso pulsante della release | Il numero successivo all'ultima release (ultima cifra), più un contatore proprio | `v0.0.2-pre.1`, `v0.0.2-pre.2` |
 | **Release** | Su richiesta: pagina Actions → Release → «Run workflow», tipo `release` | Il numero successivo; il contatore delle pre-release riparte | `v0.0.2` |
+
+Dopo aver avviato una release conviene controllare che l'azione sia arrivata in fondo e che l'etichetta esista: GitHub tiene in coda una sola esecuzione, e un'unione arrivata nel frattempo può scartare quella in attesa.
 
 Una release scrive il nuovo numero in `package.json` con un commit su `main`. Una pre-release non tocca `package.json`: dentro il pacchetto resta il numero dell'ultima release.
 
