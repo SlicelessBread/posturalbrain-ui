@@ -30,6 +30,7 @@ test('Button: a button by default, a link with href, busy while loading', () => 
 test('Icon: sizes, and an unknown name draws an empty icon instead of failing', () => {
   assert.match(html(ui.Icon, { name: 'check', size: 'sm' }), /^<svg class="pb-icon pb-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">/);
   assert.match(html(ui.Icon, { name: 'non-esiste' }), /^<svg class="pb-icon"[^>]*><\/svg>$/);
+  for (const name of ['constructor', 'toString', '__proto__']) assert.match(html(ui.Icon, { name }), /^<svg class="pb-icon"[^>]*><\/svg>$/, name);
 });
 
 test('layout helpers carry their class and pass everything else through', () => {

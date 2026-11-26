@@ -17,8 +17,8 @@ export function Icon({ name, size, className }: { name: IconName; size?: IconSiz
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      // The markup comes from the icon files of this package, never from a caller.
-      dangerouslySetInnerHTML={{ __html: ICONS[name] ?? '' }}
+      // The markup comes from the icon files of this package, never from a caller: only own keys are looked up.
+      dangerouslySetInnerHTML={{ __html: Object.hasOwn(ICONS, name) ? ICONS[name] : '' }}
     />
   );
 }
