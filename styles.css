@@ -350,7 +350,8 @@ html:has(> .pb-app) {
 
 .pb-btn--block { display: flex; width: 100%; }
 
-.pb-btn:disabled,
+/* A button that is busy is disabled too, so the keyboard cannot fire it twice; it keeps its look. */
+.pb-btn:disabled:not([aria-busy="true"]),
 .pb-btn[aria-disabled="true"] {
   opacity: 0.5;
   box-shadow: none;

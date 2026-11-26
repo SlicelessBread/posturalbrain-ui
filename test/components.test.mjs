@@ -19,8 +19,10 @@ test('fraction keeps a bar between 0 and 1 whatever it is given', () => {
 test('Button: a button by default, a link with href, busy while loading', () => {
   assert.match(html(ui.Button, null, 'Annulla'), /^<button type="button" class="pb-btn">Annulla<\/button>$/);
   assert.match(html(ui.Button, { type: 'submit', variant: 'primary', block: true }, 'Entra'), /^<button type="submit" class="pb-btn pb-btn--primary pb-btn--block">/);
-  assert.match(html(ui.Button, { href: '/pazienti', variant: 'ghost', size: 'small' }, 'Vedi tutte'), /^<a href="\/pazienti" class="pb-btn pb-btn--ghost pb-btn--small">Vedi tutte<\/a>$/);
-  assert.match(html(ui.Button, { loading: true }, 'Salvataggio…'), /aria-busy="true"/);
+  assert.match(html(ui.Button, { href: '/pazienti', variant: 'ghost', size: 'small' }, 'Vedi tutte'), /^<a class="pb-btn pb-btn--ghost pb-btn--small" href="\/pazienti">Vedi tutte<\/a>$/);
+  assert.match(html(ui.Button, { loading: true }, 'Salvataggio…'), /aria-busy="true" disabled=""/);
+  assert.match(html(ui.Button, { loading: true, href: '/x' }, 'Apri'), /^<a class="pb-btn" aria-busy="true" href="\/x">Apri<\/a>$/);
+  assert.match(html(ui.Button, { disabled: true }, 'Pubblica'), /disabled=""/);
   assert.doesNotMatch(html(ui.Button, null, 'Salva'), /aria-busy/);
   assert.match(html(ui.Button, { icon: 'plus' }, 'Aggiungi'), /<svg class="pb-icon"[^>]*aria-hidden="true"><path/);
 });
@@ -43,7 +45,7 @@ test('layout helpers carry their class and pass everything else through', () => 
 test('IconButton: named by its label, optional dot, a link with href', () => {
   assert.equal(html(ui.IconButton, { label: 'Chiudi', icon: 'x', variant: 'ghost' }).replace(/<svg.*<\/svg>/, '<svg/>'), '<button type="button" class="pb-icon-btn pb-icon-btn--ghost" aria-label="Chiudi"><svg/></button>');
   assert.match(html(ui.IconButton, { label: 'Notifiche, 2 non lette', icon: 'bell', dot: true }), /<\/svg><span class="pb-dot" aria-hidden="true"><\/span><\/button>$/);
-  assert.match(html(ui.IconButton, { label: 'Torna ai pazienti', icon: 'chevron-left', href: '/pazienti', className: 'pb-page-head__back' }), /^<a href="\/pazienti" class="pb-icon-btn pb-page-head__back" aria-label="Torna ai pazienti">/);
+  assert.match(html(ui.IconButton, { label: 'Torna ai pazienti', icon: 'chevron-left', href: '/pazienti', className: 'pb-page-head__back' }), /^<a class="pb-icon-btn pb-page-head__back" aria-label="Torna ai pazienti" href="\/pazienti">/);
 });
 
 test('Chip and Segmented state their selection with aria-pressed', () => {
@@ -75,4 +77,28 @@ test('an error is announced at once: Banner and Toast use role="alert" only for 
   assert.match(html(ui.Toast, { tone: 'danger' }, 'Errore'), /role="alert"/);
   assert.match(html(ui.Toast, null, 'Link copiato'), /^<div class="pb-toast" role="status"><span class="pb-toast__text">Link copiato<\/span><\/div>$/);
   assert.match(html(ui.Banner, { tone: 'ok', title: 'Fatto' }), /<div class="pb-banner__body"><strong>Fatto<\/strong><\/div>/);
+});
+
+test('BottomNav: an empty list draws an empty bar, and only the current section is marked', () => {
+  assert.equal(html(ui.BottomNav, { items: [] }), '<nav class="pb-bottomnav" aria-label="Sezioni"></nav>');
+  const nav = html(ui.BottomNav, { items: [{ href: '/a', label: 'A', icon: 'house' }, { href: '/b', label: 'B', icon: 'user', current: true }] });
+  assert.equal(nav.match(/aria-current="page"/g).length, 1);
+  assert.match(nav, /<a href="\/b" aria-current="page"><svg[^>]*>.*?<\/svg><span>B<\/span><\/a>/);
+});
+
+test('Tabs: only the chosen tab is in the Tab order, the first one when nothing matches', () => {
+  const tabs = [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }, { value: 'c', label: 'C' }];
+  const order = (value) => [...html(ui.Tabs, { label: 'x', tabs, value }).matchAll(/tabindex="(-?\d)"/g)].map((m) => m[1]);
+  assert.deepEqual(order('b'), ['-1', '0', '-1']);
+  assert.deepEqual(order('zzz'), ['0', '-1', '-1']);
+  assert.equal(html(ui.Tabs, { label: 'x', tabs: [], value: 'a' }), '<div class="pb-tabs" role="tablist" aria-label="x"></div>');
+});
+
+test('PageHeader and PeriodSwitch: optional parts appear only when given', () => {
+  assert.equal(html(ui.PageHeader, { title: 'Pazienti' }), '<header class="pb-page-head"><div class="pb-page-head__text"><h1 class="pb-page-head__title text-title">Pazienti</h1></div></header>');
+  assert.match(html(ui.PageHeader, { title: 'Buongiorno', display: true }), /class="pb-page-head__title text-display"/);
+  assert.match(html(ui.PageHeader, { title: 'Anna', back: { href: '/pazienti', label: 'Torna ai pazienti' } }), /^<header class="pb-page-head"><a class="pb-icon-btn pb-icon-btn--ghost pb-page-head__back" aria-label="Torna ai pazienti" href="\/pazienti">/);
+  const month = html(ui.PeriodSwitch, { label: 'Novembre 2026', prevLabel: 'Mese precedente', nextLabel: 'Mese successivo' });
+  assert.doesNotMatch(month, /pb-period--week|Oggi/);
+  assert.match(html(ui.PeriodSwitch, { week: true, label: 'x', prevLabel: 'p', nextLabel: 'n' }), /class="pb-period pb-period--week".*<button type="button" class="pb-btn pb-btn--small">Oggi<\/button><\/div>$/);
 });

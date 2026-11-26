@@ -1,37 +1,32 @@
-import type { ComponentProps } from 'react';
+import { ButtonOrLink, type ButtonOrLinkProps } from '../ButtonOrLink';
 import { cx } from '../cx';
 import { renderIcon } from '../Icon';
-import type { IconInput, LinkAs } from '../types';
+import type { IconInput } from '../types';
 
 export type ButtonProps = {
   variant?: 'secondary' | 'primary' | 'ghost' | 'danger';
   size?: 'small';
   /** Takes the full width of its container. */
   block?: boolean;
-  /** Shows a spinner and ignores taps while an action is running. */
+  /**
+   * An action is running: shows a spinner and cannot be activated again, by tap or by keyboard.
+   * (A link is only marked busy: it has no disabled state.)
+   */
   loading?: boolean;
   icon?: IconInput;
-  /** With `href` the button is a link, drawn with `as` (a plain `<a>` by default). */
-  href?: string;
-  as?: LinkAs;
-} & ComponentProps<'button'>;
+} & ButtonOrLinkProps;
 
-export function Button({ variant = 'secondary', size, block, loading, icon, href, as, className, children, type, ...rest }: ButtonProps) {
-  const classes = cx('pb-btn', variant !== 'secondary' && `pb-btn--${variant}`, size && `pb-btn--${size}`, block && 'pb-btn--block', className);
-  const busy = loading ? true : undefined;
-  if (href !== undefined) {
-    const Link = as ?? 'a';
-    return (
-      <Link href={href} className={classes} aria-busy={busy} {...(rest as object)}>
-        {renderIcon(icon)}
-        {children}
-      </Link>
-    );
-  }
-  return (
-    <button type={type ?? 'button'} className={classes} aria-busy={busy} {...rest}>
+export function Button({ variant = 'secondary', size, block, loading, icon, className, children, ...rest }: ButtonProps) {
+  const shared = {
+    className: cx('pb-btn', variant !== 'secondary' && `pb-btn--${variant}`, size && `pb-btn--${size}`, block && 'pb-btn--block', className),
+    'aria-busy': loading || undefined,
+  };
+  const content = (
+    <>
       {renderIcon(icon)}
       {children}
-    </button>
+    </>
   );
+  if (rest.href !== undefined) return <ButtonOrLink {...shared} {...rest}>{content}</ButtonOrLink>;
+  return <ButtonOrLink {...shared} {...rest} disabled={loading || rest.disabled}>{content}</ButtonOrLink>;
 }

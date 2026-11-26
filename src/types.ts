@@ -9,3 +9,6 @@ export type LinkAs = ElementType;
 
 /** Inline style that may carry the custom properties the stylesheet reads, such as `--value`. */
 export type StyleWithVars = CSSProperties & Record<`--${string}`, string | number>;
+
+/** `Omit` that keeps the members of a union apart (plain `Omit` merges them into one type). */
+export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;

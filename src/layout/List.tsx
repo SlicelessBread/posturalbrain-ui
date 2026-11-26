@@ -5,6 +5,7 @@ type ListProps = { as?: 'ul' | 'div' } & ComponentProps<'ul'>;
 
 /** A glass panel that separates its rows with hairlines. */
 export function List({ as = 'ul', className, ...rest }: ListProps) {
+  // Two branches: a ref typed for <ul> cannot be given to a <div> without saying so.
   if (as === 'div') return <div className={cx('pb-list', className)} {...(rest as ComponentProps<'div'>)} />;
   return <ul className={cx('pb-list', className)} {...rest} />;
 }

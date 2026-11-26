@@ -58,6 +58,8 @@ test('the theme switch changes the theme, and the choice is back before the page
   await page.getByRole('button', { name: 'Chiaro' }).click();
   assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'light');
   assert.equal(await page.getByRole('button', { name: 'Chiaro' }).getAttribute('aria-pressed'), 'true');
+  // The hook applies a choice exactly as the head script does: same colour scheme, same theme-color.
+  assert.deepEqual(await page.evaluate(() => [document.documentElement.style.colorScheme, document.querySelector('meta[name="theme-color"]').content, localStorage.getItem('pb-theme')]), ['light', '#f3f6fc', 'light']);
   await page.screenshot({ path: '.render/example-light.png' });
 
   // Record the theme when the document has been parsed, before the app's own scripts hydrate it.
@@ -68,6 +70,10 @@ test('the theme switch changes the theme, and the choice is back before the page
 
   await page.getByRole('button', { name: 'Automatico' }).click();
   assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark');
+  // With the choice on auto the page follows the device while it is open.
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.waitForFunction(() => document.documentElement.dataset.theme === 'light', null, { timeout: 5000 });
+  assert.equal(await page.getByRole('button', { name: 'Automatico' }).getAttribute('aria-pressed'), 'true');
   assert.deepEqual(errors, [], 'console errors (hydration included)');
   await context.close();
 });

@@ -14,7 +14,9 @@ const OUT = '.render/parity';
 
 // Differences that are meant. `pixels` / `aria` say which comparison may differ; an entry that no longer
 // differs fails the test, so the list stays true.
-export const EXPECTED = {};
+export const EXPECTED = {
+  Button: { aria: true, reason: 'a loading button is now also disabled, so the keyboard cannot fire it twice' },
+};
 
 const names = componentNames().filter((name) => hasExample(name) && fs.existsSync(fragmentPath(name)));
 

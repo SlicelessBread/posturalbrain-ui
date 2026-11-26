@@ -51,3 +51,13 @@ test('source files import each other without extensions and re-export by name', 
   assert.doesNotMatch(index, /export \*/);
   assert.doesNotMatch(index, /^\s*['"]use client['"]/m, 'the entry point must not be a client module');
 });
+
+test('a file without "use client" stays usable from a Server Component', () => {
+  const files = fs.readdirSync('src', { recursive: true }).filter((f) => /\.tsx?$/.test(f) && !/\.generated\.ts$/.test(f));
+  for (const file of files) {
+    const text = fs.readFileSync(`src/${file}`, 'utf8');
+    if (/^\s*['"]use client['"]/.test(text)) continue;
+    assert.doesNotMatch(text, /\buse(State|Effect|LayoutEffect|Ref|Reducer|SyncExternalStore|Transition|Optimistic)\s*\(/, `${file}: hooks with state or effects need "use client"`);
+    assert.doesNotMatch(text, /\bon[A-Z]\w*=\{\s*(async\s*)?(\(|function\b)/, `${file}: creates an event handler; pass handlers through or add "use client"`);
+  }
+});

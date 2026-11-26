@@ -6,7 +6,8 @@ export type Theme = 'light' | 'dark';
 
 /** localStorage key that remembers the choice on this device. */
 export const THEME_STORAGE_KEY = 'pb-theme';
-const LIGHT_QUERY = '(prefers-color-scheme: light)';
+/** The media query that tells a device set to light. */
+export const LIGHT_QUERY = '(prefers-color-scheme: light)';
 
 /** Reads a stored choice; anything unknown counts as `auto`. */
 export function parseChoice(raw: unknown): ThemeChoice {
