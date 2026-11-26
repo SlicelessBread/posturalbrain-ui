@@ -35,7 +35,7 @@ export function Toast({ open = true, ...props }: ToastProps) {
   const icon = shown.icon === undefined ? tone && ICONS[tone] : shown.icon;
   if (!rendered) return null;
   return (
-    <div ref={ref} className={cx('pb-toast', tone && `pb-toast--${tone}`, className)} role={tone === 'danger' ? 'alert' : 'status'} data-closing={closing ? '' : undefined}>
+    <div ref={ref} className={cx('pb-toast', tone && `pb-toast--${tone}`, className)} role={tone === 'danger' ? 'alert' : 'status'} data-closing={closing ? '' : undefined} inert={closing ? true : undefined}>
       {renderIcon(icon)}
       <span className="pb-toast__text">{children}</span>
       {action}

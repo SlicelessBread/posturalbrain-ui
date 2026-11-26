@@ -45,7 +45,19 @@ test('with reduced motion colours still fade, nothing else is transitioned and n
   const chip = await p.locator('.pb-chip').first().evaluate((el) => { const s = getComputedStyle(el); return { property: s.transitionProperty, duration: s.transitionDuration }; });
   assert.equal(chip.property, 'color, background-color, border-color, opacity');
   assert.ok(chip.duration.split(', ').every((d) => parseFloat(d) > 0), chip.duration);
-  assert.doesNotMatch(await p.locator('.pb-switch').first().evaluate((el) => getComputedStyle(el, '::after').transitionProperty), /transform|translate|scale/);
+  await p.close();
+
+  // Nothing on the page, pseudo-elements included, still eases a position or a size.
+  const all = await page(doc(['Chip', 'Switch', 'Progress', 'Segmented', 'Tabs', 'Toast', 'Sheet', 'ConfirmDialog', 'Checkbox', 'YearBars', 'ScreenClientManager'].map(body).join('')), { reducedMotion: 'reduce' });
+  const moving = await all.evaluate(() => [...document.querySelectorAll('body *')].flatMap((el) => ['', '::before', '::after'].map((pseudo) => {
+    const s = getComputedStyle(el, pseudo || undefined);
+    const eased = s.transitionProperty.split(', ').filter((property, i, list) => parseFloat(s.transitionDuration.split(', ')[i % s.transitionDuration.split(', ').length]) > 0 && !['color', 'background-color', 'border-color', 'opacity'].includes(property) && list.length > 0);
+    return eased.length ? `${el.className || el.tagName}${pseudo}: ${eased}` : null;
+  }).filter(Boolean)));
+  assert.deepEqual(moving, []);
+  assert.equal(await all.evaluate(() => document.getAnimations().filter((a) => !(a instanceof CSSTransition)).length), 0);
+  await all.close();
+  return;
   assert.equal(await p.evaluate(() => document.getAnimations().length), 0);
   await p.close();
 });
@@ -182,12 +194,24 @@ test('the bars of the year grow to their full height', async () => {
 test('a sheet, a dialog and a toast drawn in place arrive and end fully visible', async () => {
   for (const reducedMotion of ['no-preference', 'reduce']) {
     const p = await page(doc(body('Sheet') + body('ConfirmDialog') + body('Toast')), { reducedMotion });
+    // They do arrive: right after the first paint each is still short of its final state.
+    const start = await p.evaluate(() => Object.fromEntries(['.pb-sheet', '.pb-dialog', '.pb-toast', '.pb-sheet-backdrop'].map((selector) => { const s = getComputedStyle(document.querySelector(selector)); return [selector, { opacity: Number(s.opacity), translate: s.translate, scale: s.scale }]; })));
+    for (const selector of ['.pb-dialog', '.pb-toast', '.pb-sheet-backdrop']) assert.ok(start[selector].opacity < 1, `${selector} fades in (${reducedMotion})`);
+    if (reducedMotion === 'reduce') {
+      assert.ok(start['.pb-sheet'].opacity < 1, 'with reduced motion the sheet fades in');
+      for (const selector of ['.pb-sheet', '.pb-dialog', '.pb-toast']) assert.deepEqual([start[selector].translate, start[selector].scale], [selector === '.pb-dialog' ? '0px -50%' : 'none', 'none'], `${selector} does not travel`);
+    } else {
+      assert.notEqual(start['.pb-sheet'].translate, 'none', 'the sheet slides in');
+      assert.notEqual(start['.pb-dialog'].scale, 'none', 'the dialog grows in');
+      assert.notEqual(start['.pb-toast'].translate, 'none', 'the toast rises in');
+    }
     await settled(p);
     for (const selector of ['.pb-sheet', '.pb-dialog', '.pb-toast', '.pb-sheet-backdrop']) {
       const end = await p.locator(selector).first().evaluate((el) => { const s = getComputedStyle(el); return { opacity: s.opacity, scale: s.scale }; });
       assert.deepEqual(end, { opacity: '1', scale: 'none' }, `${selector} with ${reducedMotion}`);
     }
     assert.equal(await p.locator('.pb-sheet').first().evaluate((el) => getComputedStyle(el).translate), 'none');
+    assert.equal(await p.locator('.pb-toast').first().evaluate((el) => getComputedStyle(el).translate), 'none');
     await p.close();
   }
 });

@@ -246,6 +246,7 @@ test('the confirmation: it must be answered, the safe button has the focus, and 
 const sheetNow = (page) => page.locator('dialog.pb-sheet').evaluate((d) => ({
   open: d.open,
   closing: d.hasAttribute('data-closing'),
+  inert: d.inert,
   translate: getComputedStyle(d).translate,
   opacity: getComputedStyle(d).opacity,
   note: Boolean(d.querySelector('#sheet-note')),
@@ -266,7 +267,7 @@ test('the sheet slides in, and stays on screen with what it showed while it slid
   assert.notEqual((await sheetNow(page)).translate, 'none', 'just opened, the sheet is still on its way up');
   assert.ok(Number(await page.locator('body > .pb-sheet-backdrop').evaluate((el) => getComputedStyle(el).opacity)) < 1, 'the veil is still darkening');
   await settled(page);
-  assert.deepEqual(await sheetNow(page), { open: true, closing: false, translate: 'none', opacity: '1', note: true });
+  assert.deepEqual(await sheetNow(page), { open: true, closing: false, inert: false, translate: 'none', opacity: '1', note: true });
 
   // The app closes it and clears part of its content at the same time.
   await sheet.getByRole('button', { name: 'Aggiungi collaboratore' }).click();
@@ -274,6 +275,7 @@ test('the sheet slides in, and stays on screen with what it showed while it slid
   const leaving = await sheetNow(page);
   assert.equal(leaving.open, true, 'the dialog closes only when the exit has ended');
   assert.equal(leaving.closing, true);
+  assert.equal(leaving.inert, true, 'on its way out the sheet no longer answers: a second tap cannot repeat the action');
   assert.equal(leaving.note, true, 'what the sheet showed stays until it is gone');
   assert.equal(await page.locator('body > .pb-sheet-backdrop').getAttribute('data-closing'), '');
   await page.waitForFunction(() => !document.querySelector('dialog.pb-sheet').open);
@@ -303,7 +305,7 @@ test('the sheet survives haste: reopened while leaving, Esc while arriving, Esc 
   await sheet.getByRole('button', { name: 'Chiudi e riapri' }).click();
   await page.waitForTimeout(700);
   await settled(page);
-  assert.deepEqual(await sheetNow(page), { open: true, closing: false, translate: 'none', opacity: '1', note: true });
+  assert.deepEqual(await sheetNow(page), { open: true, closing: false, inert: false, translate: 'none', opacity: '1', note: true });
   assert.equal(await page.locator('body > .pb-sheet-backdrop').count(), 1);
   assert.equal(await page.locator('body > .pb-sheet-backdrop').getAttribute('data-closing'), null);
   assert.equal(await closes(page), 0);
@@ -324,6 +326,15 @@ test('the sheet survives haste: reopened while leaving, Esc while arriving, Esc 
   await page.waitForFunction(() => document.querySelector('#state').dataset.closes === '2');
   await noVeil(page);
   assert.equal((await sheetNow(page)).open, false);
+
+  // The browser closes it on its own while the app's exit is running: no dismissal, nothing left behind.
+  await showSheet(page);
+  await sheet.getByRole('button', { name: 'Aggiungi collaboratore' }).click();
+  await sheet.evaluate((d) => d.close());
+  await page.waitForFunction(() => !document.querySelector('dialog.pb-sheet').open);
+  await noVeil(page);
+  await page.waitForTimeout(400);
+  assert.equal(await closes(page), 2);
 
   // And it still opens afterwards.
   await showSheet(page);
@@ -392,6 +403,50 @@ test('the highlight of a real segmented control slides, and another one on the p
   assert.ok(midway !== from && midway !== to, `it travels: ${from} → ${midway} → ${to}`);
   assert.equal(await shift('Tema'), theme);
   assert.equal(await page.getByRole('group', { name: 'Vista dei post' }).evaluate((el) => el.style.getPropertyValue('--pb-index')), '1');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('what happens inside the sheet does not close it, and a refused dismissal brings it back', async () => {
+  const { page, errors, context } = await open();
+  const sheet = page.locator('dialog.pb-sheet');
+  await showSheet(page);
+  await settled(page);
+
+  // A file picker cancelled inside the sheet sends a `cancel` that bubbles; a dialog nested in it sends a `close`
+  // that React hands up. Neither is about this sheet.
+  for (const type of ['cancel', 'close']) {
+    await sheet.locator('input').first().evaluate((input, name) => input.dispatchEvent(new Event(name, { bubbles: true, cancelable: true })), type);
+    await page.waitForTimeout(350);
+    assert.equal((await sheetNow(page)).open, true, `a ${type} event from inside`);
+    assert.equal((await sheetNow(page)).closing, false);
+    assert.equal(await closes(page), 0);
+  }
+
+  // The app refuses the dismissal (it keeps \`open\` true): the sheet leaves and comes back, whole.
+  await sheet.getByRole('button', { name: 'Rifiuta la chiusura' }).click();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => document.querySelector('#state').dataset.refusals === '1');
+  await page.waitForFunction(() => { const d = document.querySelector('dialog.pb-sheet'); return d.open && !d.hasAttribute('data-closing'); });
+  await settled(page);
+  assert.deepEqual(await sheetNow(page), { open: true, closing: false, inert: false, translate: 'none', opacity: '1', note: true });
+  assert.equal(await page.locator('body > .pb-sheet-backdrop').count(), 1);
+  assert.equal(await closes(page), 0);
+
+  // Once the app agrees again it closes as usual.
+  await sheet.getByRole('button', { name: 'Rifiuta la chiusura' }).click();
+  await sheet.getByRole('button', { name: 'Chiudi', exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('#state').dataset.closes === '1');
+  await noVeil(page);
+
+  // A confirmation on its way out cannot be confirmed a second time.
+  await page.getByRole('button', { name: 'Elimina paziente' }).click();
+  const dialog = page.locator('dialog.pb-dialog');
+  await dialog.getByRole('button', { name: 'Elimina' }).click();
+  assert.deepEqual(await dialog.evaluate((d) => [d.open, d.inert]), [true, true]);
+  await page.waitForFunction(() => !document.querySelector('dialog.pb-dialog').open);
+  assert.equal(await dialog.evaluate((d) => d.inert), false);
+
   assert.deepEqual(errors, []);
   await context.close();
 });
