@@ -67,7 +67,13 @@ test('keyboard focus is visible and reduced motion is honoured', () => {
   const reduced = /@media \(prefers-reduced-motion: reduce\)\s*\{([\s\S]*?\})\s*\}/.exec(bundle);
   assert.ok(reduced, 'missing reduced-motion block');
   assert.match(reduced[1], /animation:\s*none\s*!important/);
-  assert.match(reduced[1], /transition:\s*none\s*!important/);
+  // Nothing travels: only changes of colour and opacity are still eased.
+  assert.match(reduced[1], /transition-property:\s*color, background-color, border-color, opacity\s*!important/);
+  // Movement is opted into, never declared and then cancelled: no translate, scale or keyframes outside `no-preference`,
+  // except the two animations that were there before and are switched off by the rule above.
+  const outside = bundle.replace(/@media \(prefers-reduced-motion: no-preference\)\s*\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}/g, '');
+  assert.doesNotMatch(outside, /animation:\s*pb-(rise|grow)/);
+  assert.doesNotMatch(outside, /@starting-style\s*\{[^}]*\{[^}]*(translate|scale)/);
 });
 
 test('every pb- class and text style used in a preview is defined', () => {
@@ -115,7 +121,7 @@ test('every component class in the stylesheet is shown in at least one preview',
 });
 
 test('the public previews use invented names only', () => {
-  for (const d of dirs) assert.doesNotMatch(preview(d), /Rugarli/i, d);
-  for (const [name, text] of [...exampleSources, ...packageSources]) assert.doesNotMatch(text, /Rugarli/i, name);
-  assert.doesNotMatch(read(PROJECT, 'tokens.json') + read(PROJECT, 'README.md'), /Rugarli/i);
+  for (const d of dirs) assert.doesNotMatch(preview(d), /Rugarli|Giorgio/i, d);
+  for (const [name, text] of [...exampleSources, ...packageSources]) assert.doesNotMatch(text, /Rugarli|Giorgio/i, name);
+  assert.doesNotMatch(read(PROJECT, 'tokens.json') + read(PROJECT, 'README.md'), /Rugarli|Giorgio/i);
 });

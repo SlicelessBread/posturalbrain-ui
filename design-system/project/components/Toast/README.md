@@ -10,4 +10,6 @@ Il messaggio temporaneo conferma che un'azione è andata a buon fine, o dice sub
 - Un testo al passato per le conferme («Percorso salvato»). Per gli errori, cosa è successo e perché, senza scuse («Non sono riuscito a salvare: manca la connessione»).
 - Al massimo un'azione, discreta e piccola («Riprova», «Annulla»).
 
+Compare salendo di poco con una dissolvenza. Per toglierlo il componente `Toast` riceve `open={false}`: sfuma e poi esce dalla pagina (fuori dal componente: `data-closing`, poi si toglie l'elemento a transizione finita).
+
 È uno dei pochi elementi con sfocatura vera, perché galleggia sul contenuto.

@@ -50,8 +50,27 @@ POSTURALBRAIN è il linguaggio visivo delle app dello studio: il Client Manager 
 
 - Ogni elemento toccabile misura almeno `--tap-min` (44 px) per lato, anche quando sembra più piccolo.
 - Il fuoco da tastiera è un anello pieno di 2 px in `--focus`. Non toglierlo.
-- Le animazioni sono brevi (120 e 200 ms) e spariscono se il telefono chiede meno movimento.
 - Mentre i dati arrivano si mostrano le sagome di attesa nella forma della pagina, mai una schermata vuota.
+
+## Movimento
+
+Il movimento dice da dove arriva una cosa e dove va: non decora.
+
+| Cosa | Come si muove | Durata |
+|---|---|---|
+| Tocco su pulsanti, interruttore, casella | Cambio di colore, lieve pressione | 120 ms (`--pb-duration-fast`) |
+| Selezione in selettore a segmenti, barra in basso, linguette | L'evidenziazione scivola dalla voce di prima a quella nuova | 200 ms (`--pb-duration`) |
+| Conferma, messaggio temporaneo | Dissolvenza, con un lieve ingrandimento o una salita di 8 px | 200 ms |
+| Foglio dal basso e velo | Il foglio sale dal bordo, il velo si scurisce | 320 ms a entrare (`--pb-duration-slow`), 200 ms a uscire |
+| Blocchi di una pagina | Salgono di 6 px uno dopo l'altro, al massimo sei scatti | 180 ms l'uno, 30 ms di scarto |
+| Barre dell'anno | Crescono dal basso, un mese dopo l'altro | 320 ms |
+
+- **Uscire è più rapido che entrare.** Chi chiude ha già deciso: l'uscita dura 200 ms, con la curva `--pb-ease-exit`.
+- **Le righe di una lista non entrano una per una.** Ripartirebbero a ogni lettera digitata in una ricerca: si muove il blocco che le contiene.
+- **Le cifre non contano fino al valore.** Compaiono già esatte.
+- **Meno movimento.** Se il telefono lo chiede niente si sposta e niente gira in continuazione: restano i cambi di colore e una dissolvenza di 100 ms per fogli, conferme e messaggi. Nulla resta nascosto o a metà.
+- Un movimento nuovo si scrive dentro `@media (prefers-reduced-motion: no-preference)`, e si muovono solo opacità, `translate` e `scale`.
+- Le linguette scivolano dove il browser sa ancorare un elemento a un altro (iOS 26 e successivi); altrove la riga salta, come prima.
 
 ## Icone
 

@@ -40,6 +40,12 @@ run `build:previews`. `npm test` fails when a generated file is stale.
   the choice is auto; `useTheme` reads and changes it. `<html>` is the run-time source of truth.
 - **Overlays**: `Sheet` and `ConfirmDialog` are real `<dialog>` elements driven by `useModalDialog` (showModal,
   a veil element instead of `::backdrop`, one dismissal callback per close made by the person).
+- **Motion** lives in the stylesheet. Entries use `@starting-style`; exits use `data-closing`, set by the component,
+  which removes or closes the element once `settle()` (`src/motion/`) reports the transitions over: one path for
+  every browser, because Safari cannot animate a `<dialog>` out of the top layer. Sliding highlights read
+  `--pb-index` / `--pb-count` from the component. Anything that travels is declared inside
+  `prefers-reduced-motion: no-preference`; with reduced motion only colour changes and short fades remain. The rules
+  for designers are in `design-system/project/README.md`, section «Movimento».
 - **The Design System page** (a Claude artifact, linked in the README) is published from
   `design-system/project/`. Its previews are generated: `examples/<Name>.tsx` rendered to static markup by
   `scripts/build-previews.mjs`. Only the cover is a hand-written fragment. Changing a component therefore changes
@@ -52,24 +58,25 @@ run `build:previews`. `npm test` fails when a generated file is stale.
 Tags are created by `.github/workflows/release.yml`, never by hand; the numbering rules are in
 `scripts/release-version.mjs`.
 
-- Every merge into `main` that touches what the package ships (`src/`, `styles.css`, `tokens.json`,
-  `package.json`) gets a **pre-release** automatically: `v0.0.2-pre.1`, `v0.0.2-pre.2`, …
-- A **release** is made only on request (the workflow's "Run workflow", kind `release`): it raises the number,
-  writes it into `package.json` with a commit on `main`, tags it and publishes it. The same button with kind
-  `pre-release` makes a pre-release of the current `main` by hand.
+- Nothing is tagged automatically: a merge into `main` creates no tag. Both kinds are made on request, with the
+  workflow's "Run workflow" (from a session: the GitHub tool that starts a workflow run on `main`).
+- Kind `pre-release` tags the current `main`: `v0.0.2-pre.1`, `v0.0.2-pre.2`, …
+- Kind `release` raises the number, writes it into `package.json` with a commit on `main`, tags it and publishes it.
 - Pre-releases prepare the next `patch`: if the release then raises another number (`v0.1.0` after
   `v0.0.3-pre.2`), the names differ and that is fine.
-- Runs are queued one at a time, and GitHub keeps only the newest waiting run: after starting a release, check
-  that its run finished and that the tag exists.
+- Runs are queued one at a time, and GitHub keeps only the newest waiting run: after starting one, check that the
+  run finished and that the tag exists.
 
-**Always advise on the release.** At the end of any work that changes what the package ships, tell the owner, in
-the pull request (the template has the section) and in the conversation:
+**Always advise on the release.** Because nothing is tagged automatically, a change that nobody mentions never
+reaches the apps: the owner relies on this reminder. At the end of any work that changes what the package ships
+(`src/`, `styles.css`, `tokens.json`, `package.json`), and again when its pull request is merged, tell the owner,
+in the pull request (the template has the section) and in the conversation:
 
-1. **whether** a release is worth making now or the automatic pre-release is enough;
-2. **which number** to raise (`patch`, `minor`, `major`);
+1. **what** is worth making now: a release, a pre-release, or nothing yet;
+2. **which number** to raise (`patch`, `minor`, `major`), for a release;
 3. **why**, in one or two sentences.
 
-Then wait for the answer: a release is started only after the owner says so. Criteria, while the first number is 0:
+Then wait for the answer: a release or a pre-release is started only after the owner says so. Criteria, while the first number is 0:
 
 | What changed | Raise |
 |---|---|
@@ -78,7 +85,8 @@ Then wait for the answer: a release is started only after the owner says so. Cri
 | Changes that make the apps edit code, or that visibly change the look (a prop, component, class or token renamed or removed; colour or type values) | `minor` |
 | The system is adopted by the three apps and considered stable | `major` (1.0.0) |
 
-Advise a **release**, not only the pre-release, when an app is about to go to production with these changes
-(production apps point at releases, never at pre-releases), or when a set of changes is complete and has been seen
-working in at least one app. Never advise one while a defect introduced by those changes is known. While a piece of
-work is still in progress, the pre-releases are enough.
+Advise a **pre-release** when an app needs to install the change to try it (an app in development may point at a
+pre-release). Advise a **release** when an app is about to go to production with these changes (production apps
+point at releases, never at pre-releases), or when a set of changes is complete and has been seen working in at
+least one app. Never advise a release while a defect introduced by those changes is known. Advise **nothing yet**
+when no app needs the change now, and say so explicitly.

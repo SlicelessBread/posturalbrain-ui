@@ -77,7 +77,8 @@ export async function renderCheck({ projectDir, widths = [390, 320], only, outDi
       for (const theme of tokens.color.themes.map((t) => t.id)) {
         for (const width of sizes) {
           const errors = [];
-          const page = await browser.newPage({ viewport: { width, height: 800 } });
+          // Reduced motion: the check is about layout, and must not catch a block on its way in.
+          const page = await browser.newPage({ viewport: { width, height: 800 }, reducedMotion: 'reduce' });
           page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text().slice(0, 120)}`); });
           page.on('pageerror', (e) => errors.push(`script: ${String(e).slice(0, 120)}`));
           await page.route('**/*', (route) => {
@@ -89,6 +90,8 @@ export async function renderCheck({ projectDir, widths = [390, 320], only, outDi
             .replace('<html lang="it">', `<html lang="it" data-theme="${theme}">`)
             .replace('<head>', `<head><style>${css}</style>`);
           await page.setContent(html, { waitUntil: 'load' });
+          // The short fades that remain have ended before anything is measured or photographed.
+          await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))).then(() => {}));
           errors.push(...(await page.evaluate(inspect)));
           const screenshot = path.join(outDir, `${component}-${theme}-${width}.png`);
           await page.locator('body').screenshot({ path: screenshot });

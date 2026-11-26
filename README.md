@@ -81,7 +81,7 @@ export default function Pazienti() {
 ```
 
 - **Link.** Un componente con `href` è un link. Per la navigazione senza ricaricare la pagina passagli `Link` di Next con `as` (o `linkAs` dove i link sono più d'uno, come nella barra in basso).
-- **Componenti server.** Tutto si importa da `posturalbrain-ui` anche in un componente server. I componenti che tengono uno stato o reagiscono al tocco (`Segmented`, `Tabs`, `Switch`, `Sheet`, `ConfirmDialog`, `WeekColumns`, `MonthGrid`, `UploadZone`, `ThemeSwitch`) dichiarano da soli `"use client"`; per dar loro una funzione (`onChange`, `onClose`) il file che li usa deve essere a sua volta un componente client. Lo stesso vale per qualsiasi componente a cui si passa una funzione (`onClick` di un `Button`, `onChange` di un campo, `onToggleFavourite` di una scheda video) e per `useTheme()`: le funzioni e gli hook vivono solo nei componenti client.
+- **Componenti server.** Tutto si importa da `posturalbrain-ui` anche in un componente server. I componenti che tengono uno stato o reagiscono al tocco (`Segmented`, `Tabs`, `Switch`, `Sheet`, `ConfirmDialog`, `Toast`, `WeekColumns`, `MonthGrid`, `UploadZone`, `ThemeSwitch`) dichiarano da soli `"use client"`; per dar loro una funzione (`onChange`, `onClose`) il file che li usa deve essere a sua volta un componente client. Lo stesso vale per qualsiasi componente a cui si passa una funzione (`onClick` di un `Button`, `onChange` di un campo, `onToggleFavourite` di una scheda video) e per `useTheme()`: le funzioni e gli hook vivono solo nei componenti client.
 - **Testi e cifre.** I componenti non formattano nulla: importi, date e testi arrivano già pronti dall'app. Le etichette che il componente possiede («Chiudi», «Annulla», «Oggi») sono in italiano e si possono sostituire.
 - **Icone.** `icon="plus"` disegna un'icona del pacchetto (l'elenco è il tipo `IconName`); in alternativa si passa un elemento proprio.
 - **Tema.** `ThemeSwitch` è il controllo pronto; `useTheme()` dà la scelta, il tema risultante e `setChoice`.
@@ -93,20 +93,20 @@ Ogni proprietà è descritta nel codice del componente (`src/`), e l'editor la m
 
 1. Si cambia qui: valori in `design-system/project/tokens.json`, stile in `design-system/project/components/bundle.css`, componenti in `src/`, esempi in `examples/`.
 2. `npm run build:package && npm run build:previews`, poi `npm run typecheck`, `npm test` e `npm run test:example`.
-3. Si unisce su `main` con una richiesta di modifica. Se l'unione tocca ciò che il pacchetto distribuisce nasce da sola una pre-release (vedi «Versioni»).
+3. Si unisce su `main` con una richiesta di modifica. Un'unione non crea etichette: se un'app deve provare la modifica si chiede una pre-release (vedi «Versioni»).
 4. Si ripubblicano sulla pagina di Claude i file cambiati sotto `design-system/project/`.
 5. Ogni app passa alla nuova versione quando vuole, cambiando l'etichetta nella riga di `package.json`.
 
 ## Versioni
 
-Le etichette le crea l'azione `Release` del repository, mai a mano.
+Le etichette le crea l'azione `Release` del repository, mai a mano e solo su richiesta: pagina Actions → Release → «Run workflow», scegliendo il tipo.
 
 | | Quando nasce | Nome | Esempio |
 |---|---|---|---|
-| **Pre-release** | Da sola, a ogni unione su `main` che tocca `src/`, `styles.css`, `tokens.json` o `package.json`; oppure su richiesta, dallo stesso pulsante della release | Il numero successivo all'ultima release (ultima cifra), più un contatore proprio | `v0.0.2-pre.1`, `v0.0.2-pre.2` |
-| **Release** | Su richiesta: pagina Actions → Release → «Run workflow», tipo `release` | Il numero successivo; il contatore delle pre-release riparte | `v0.0.2` |
+| **Pre-release** | Su richiesta, tipo `pre-release`: etichetta il `main` di quel momento | Il numero successivo all'ultima release (ultima cifra), più un contatore proprio | `v0.0.2-pre.1`, `v0.0.2-pre.2` |
+| **Release** | Su richiesta, tipo `release` | Il numero successivo; il contatore delle pre-release riparte | `v0.0.2` |
 
-Dopo aver avviato una release conviene controllare che l'azione sia arrivata in fondo e che l'etichetta esista: GitHub tiene in coda una sola esecuzione, e un'unione arrivata nel frattempo può scartare quella in attesa.
+Dopo aver avviato l'azione conviene controllare che sia arrivata in fondo e che l'etichetta esista: GitHub tiene in coda una sola esecuzione, e una seconda richiesta arrivata nel frattempo può scartare quella in attesa.
 
 Una release scrive il nuovo numero in `package.json` con un commit su `main`. Una pre-release non tocca `package.json`: dentro il pacchetto resta il numero dell'ultima release.
 
@@ -121,7 +121,7 @@ Un'app in produzione punta sempre a una release (`#v0.0.2`). Per provare una mod
 | Cambi che obbligano le app a modificare il codice o che cambiano l'aspetto in modo evidente: proprietà, componente, classe o variabile rinominati o tolti; valori dei colori o del carattere | centrale (`minor`) | 0.0.3 → 0.1.0 |
 | Il sistema è adottato dalle tre app e lo consideriamo stabile | prima (`major`) | 0.4.2 → 1.0.0 |
 
-**Quando fare una release** e non accontentarsi della pre-release: quando un'app sta per andare in produzione con quelle modifiche, o quando un gruppo di modifiche è completo ed è stato visto funzionare in almeno un'app. Mai con un difetto noto introdotto da quelle modifiche. Ogni richiesta di modifica porta scritto il consiglio: se serve una release, quale cifra, perché.
+**Quando fare una release** e non accontentarsi della pre-release: quando un'app sta per andare in produzione con quelle modifiche, o quando un gruppo di modifiche è completo ed è stato visto funzionare in almeno un'app. Mai con un difetto noto introdotto da quelle modifiche. Ogni richiesta di modifica porta scritto il consiglio: se serve una pre-release, una release o niente, quale cifra, perché. Senza una richiesta non nasce nessuna etichetta.
 
 ## Quando il repository diventerà privato
 

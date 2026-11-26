@@ -11,7 +11,7 @@ export default function Example() {
       <Page>
         <Row nowrap>
           <Avatar size="lg">AC</Avatar>
-          <PageHeader title="Ciao Anna" subtitle="12 video assegnati da Giorgio" />
+          <PageHeader title="Ciao Anna" subtitle="12 video assegnati dallo studio" />
         </Row>
         <SearchField label="Cerca un video" placeholder="Cerca un video" />
         <Tabs label="Video" value="assegnati" tabs={[{ value: 'assegnati', label: 'Assegnati' }, { value: 'preferiti', label: 'Preferiti' }]} />

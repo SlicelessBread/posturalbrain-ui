@@ -1,5 +1,6 @@
 import { cx } from '../cx';
 import { renderIcon } from '../Icon';
+import { selectionVars } from '../selection';
 import type { IconInput, LinkAs } from '../types';
 
 export type BottomNavItem = { href: string; label: string; icon: IconInput; current?: boolean };
@@ -17,7 +18,7 @@ type BottomNavProps = {
 /** The sections of an app, always within reach of the thumb. */
 export function BottomNav({ items, label = 'Sezioni', linkAs: Link = 'a', className }: BottomNavProps) {
   return (
-    <nav className={cx('pb-bottomnav', className)} aria-label={label}>
+    <nav className={cx('pb-bottomnav', className)} aria-label={label} style={selectionVars(items.findIndex((item) => item.current), items.length)}>
       {items.map((item, index) => (
         <Link key={index} href={item.href} aria-current={item.current ? 'page' : undefined}>
           {renderIcon(item.icon)}

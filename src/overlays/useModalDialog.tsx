@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode, type SyntheticEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { settle } from '../motion/settle';
 
 type Options = {
   open: boolean;
@@ -14,14 +15,22 @@ type Options = {
 };
 
 /**
- * Drives a <dialog> from an `open` prop: showModal/close, the veil behind it, and one `onDismiss`
- * call per close made by the person (none when the app itself sets `open` to false).
+ * Drives a <dialog> from an `open` prop: showModal/close, the veil behind it, the exit animation, and
+ * one `onDismiss` call per close made by the person (none when the app itself sets `open` to false).
+ *
+ * Closing takes two steps: `data-closing` goes on the dialog and on the veil, the stylesheet animates
+ * them out, and the dialog is really closed when that has ended. `onDismiss` is called then.
  */
 export function useModalDialog({ open, modal, onDismiss, lightDismiss }: Options) {
   const ref = useRef<HTMLDialogElement>(null);
-  const closedByProp = useRef(false);
-  // Whether the modal dialog is really showing: Esc closes it before the app updates `open`.
+  const veilRef = useRef<HTMLDivElement>(null);
+  // Whether the modal dialog is really showing: it stays so during its exit, and the browser can close it on its own.
   const [showing, setShowing] = useState(false);
+  // The person asked to close and the exit is running. The other reason for an exit needs no state:
+  // the app has set `open` to false while the dialog is still showing.
+  const [dismissing, setDismissing] = useState(false);
+  /** Who asked for the exit that is running, if one is: known in the same pass in which it starts. */
+  const closing = dismissing ? 'person' : modal && showing && !open ? 'app' : null;
 
   // `showing` is a dependency on purpose: when the person dismisses the dialog and the app keeps
   // `open` true (it vetoed the close), the dialog is shown again instead of staying closed for good.
@@ -31,17 +40,45 @@ export function useModalDialog({ open, modal, onDismiss, lightDismiss }: Options
     if (open && !dialog.open) {
       dialog.showModal();
       setShowing(true);
-    } else if (!open && dialog.open) {
-      closedByProp.current = true;
-      dialog.close();
     }
   }, [open, modal, showing]);
 
-  function onClose() {
+  // An exit ends by really closing the dialog. One made by the app is called off if `open` comes back in time.
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!closing || !dialog) return;
+    let cancelled = false;
+    void settle(dialog, veilRef.current).then(() => {
+      if (!cancelled && dialog.open) dialog.close();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [closing]);
+
+  // React hands these two events up from what the dialog contains as well (the browser does so for the
+  // `cancel` of a file picker): a dialog or a file field inside this one must not close it.
+  const fromInside = (event: SyntheticEvent<HTMLDialogElement>) => event.target !== event.currentTarget;
+
+  function onClose(event: SyntheticEvent<HTMLDialogElement>) {
+    if (fromInside(event)) return;
     // A close event can arrive after the dialog was opened again: trust the element, not the event.
     setShowing(ref.current?.open ?? false);
-    if (closedByProp.current) closedByProp.current = false;
-    else onDismiss();
+    setDismissing(false);
+    // No exit was running when the browser closed it by itself (a back gesture it does not let pages hold back).
+    if (closing !== 'app') onDismiss();
+  }
+
+  /** The person asked to close: start the exit, unless one is already running. */
+  function dismiss() {
+    if (!closing) setDismissing(true);
+  }
+
+  // Esc, the back gesture and a tap outside (closedby="any") ask first: hold the close back and animate it.
+  function onCancel(event: SyntheticEvent<HTMLDialogElement>) {
+    if (!modal || fromInside(event)) return;
+    event.preventDefault();
+    dismiss();
   }
 
   function onClick(event: MouseEvent<HTMLDialogElement>) {
@@ -49,12 +86,13 @@ export function useModalDialog({ open, modal, onDismiss, lightDismiss }: Options
     if (!modal || !lightDismiss || 'closedBy' in HTMLDialogElement.prototype) return;
     if (event.target !== event.currentTarget) return;
     const box = event.currentTarget.getBoundingClientRect();
-    if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) event.currentTarget.close();
+    if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dismiss();
   }
 
   // The veil is a plain element, because ::backdrop cannot read the theme variables on older iOS.
   // Behind a modal dialog it goes on <body>: an ancestor with a transform or a blur would confine it.
-  const backdrop = <div className="pb-sheet-backdrop" />;
+  const marker = closing ? '' : undefined;
+  const backdrop = <div ref={veilRef} className="pb-sheet-backdrop" data-closing={marker} />;
   let veil: ReactNode = null;
   if (modal && showing) veil = createPortal(backdrop, document.body);
   else if (!modal && open) veil = backdrop;
@@ -62,12 +100,18 @@ export function useModalDialog({ open, modal, onDismiss, lightDismiss }: Options
   const dialogProps = {
     ref,
     onClose,
+    onCancel,
     onClick,
     open: modal ? undefined : open,
+    'data-closing': marker,
+    // On its way out it no longer answers: a second tap on its button must not repeat the action.
+    inert: closing ? true : undefined,
     // Spread, so that it also compiles against React types that do not know `closedby` yet.
     ...(lightDismiss ? { closedby: 'any' as const } : {}),
   };
-  // For the dialog's own buttons: over the page the browser closes it and reports the close; in place the app is told directly.
-  const close = () => (modal ? ref.current?.close() : onDismiss());
-  return { veil, dialogProps, close };
+  // For the dialog's own buttons: over the page the exit starts and the close is reported at its end; in place the app is told directly.
+  const close = () => (modal ? dismiss() : onDismiss());
+  /** Whether the content is drawn: also during the exit, after the app has set `open` to false. */
+  const rendered = open || (modal && showing);
+  return { veil, dialogProps, close, rendered };
 }

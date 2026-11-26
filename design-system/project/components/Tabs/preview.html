@@ -1,4 +1,4 @@
-<!-- @dsCard group="Navigazione" height=180 subtitle="Due linguette; molte linguette che scorrono" -->
+<!-- @dsCard group="Navigazione" height=180 subtitle="Due linguette; molte linguette che scorrono: tocca per provare" -->
 <!doctype html>
 <html lang="it">
 <head>
@@ -9,5 +9,18 @@
 </head>
 <body class="pb-app pb-app--inline">
 <div class="pb-stack"><div class="pb-tabs" role="tablist" aria-label="Video"><button type="button" role="tab" aria-selected="true" tabindex="0">Assegnati</button><button type="button" role="tab" aria-selected="false" tabindex="-1">Preferiti</button></div><div class="pb-tabs" role="tablist" aria-label="Scheda paziente"><button type="button" role="tab" aria-selected="false" tabindex="-1">Dati</button><button type="button" role="tab" aria-selected="true" tabindex="0">Percorsi</button><button type="button" role="tab" aria-selected="false" tabindex="-1">Rate</button><button type="button" role="tab" aria-selected="false" tabindex="-1">Video assegnati</button><button type="button" role="tab" aria-selected="false" tabindex="-1">Note</button></div></div>
+<script>
+// Demo only: chooses the tab that is tapped.
+  document.querySelectorAll('.pb-tabs').forEach((tabs) => {
+    tabs.addEventListener('click', (event) => {
+      const chosen = event.target.closest('[role="tab"]');
+      if (!chosen) return;
+      [...tabs.children].forEach((tab) => {
+        tab.setAttribute('aria-selected', String(tab === chosen));
+        tab.tabIndex = tab === chosen ? 0 : -1;
+      });
+    });
+  });
+</script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, ConfirmDialog, DayList, DayListDay, EventChip, List, MoneyField, SearchField, SectionTitle, Segmented, Sheet, Stack, Switch, Tabs, TextField, UploadZone, WeekColumns, type WeekDay } from 'posturalbrain-ui';
+import { Button, ConfirmDialog, DayList, DayListDay, EventChip, List, MoneyField, SearchField, SectionTitle, Segmented, Sheet, Stack, Switch, Tabs, TextField, Toast, UploadZone, WeekColumns, type WeekDay } from 'posturalbrain-ui';
 
 const week: WeekDay[] = [
   { id: 'lun', weekday: 'Lun', day: 30, label: 'Lunedì 30 novembre, oggi, 1 evento', today: true, events: [{ kind: 'due', text: 'AC' }] },
@@ -26,6 +26,10 @@ export function Playground() {
   const [closes, setCloses] = useState(0);
   const [confirm, setConfirm] = useState(false);
   const [outcome, setOutcome] = useState('');
+  const [toast, setToast] = useState(false);
+  // The app may refuse a dismissal (unsaved changes): the sheet must come back.
+  const [guard, setGuard] = useState(false);
+  const [refusals, setRefusals] = useState(0);
 
   return (
     <Stack>
@@ -58,12 +62,20 @@ export function Playground() {
       {sheetMounted ? (
         <Sheet
           open={sheet}
-          onClose={() => { setSheet(false); setCloses((n) => n + 1); }}
+          onClose={() => {
+            if (guard) { setRefusals((n) => n + 1); return; }
+            setSheet(false);
+            setCloses((n) => n + 1);
+          }}
           title="Aggiungi collaboratore"
           actions={<Button variant="primary" block onClick={() => setSheet(false)}>Aggiungi collaboratore</Button>}
         >
           <TextField label="Nome e cognome" autoComplete="off" />
           <MoneyField label="Stipendio mensile" />
+          {/* An app often clears what a sheet shows in the same breath as it closes it. */}
+          {sheet ? <p id="sheet-note" className="text-label pb-muted">Nota che l'app toglie chiudendo</p> : null}
+          <Button variant="ghost" onClick={() => { setSheet(false); setTimeout(() => setSheet(true), 60); }}>Chiudi e riapri</Button>
+          <Button variant="ghost" aria-pressed={guard} onClick={() => setGuard((on) => !on)}>Rifiuta la chiusura</Button>
           <Button variant="ghost" onClick={() => setSheetMounted(false)}>Togli il foglio dalla pagina</Button>
         </Sheet>
       ) : null}
@@ -79,7 +91,10 @@ export function Playground() {
         Verranno eliminati anche i suoi 2 percorsi. Non si può annullare.
       </ConfirmDialog>
 
-      <p id="state" className="text-caption pb-subtle" data-view={view} data-tab={tab} data-notify={String(notify)} data-query={query} data-day={day} data-file={file} data-sheet={String(sheet)} data-closes={closes} data-outcome={outcome}>
+      <Button onClick={() => setToast((shown) => !shown)}>{toast ? "Nascondi l'avviso" : "Mostra l'avviso"}</Button>
+      <Toast open={toast} tone="ok">Collaboratore salvato</Toast>
+
+      <p id="state" className="text-caption pb-subtle" data-view={view} data-tab={tab} data-notify={String(notify)} data-query={query} data-day={day} data-file={file} data-sheet={String(sheet)} data-closes={closes} data-refusals={refusals} data-outcome={outcome}>
         Stato per la prova automatica
       </p>
     </Stack>

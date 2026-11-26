@@ -66,7 +66,9 @@ test('the release workflow runs only on main, writes only contents, and takes no
   const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
   // Never on pull requests: it would run with write access on code nobody has merged.
   assert.doesNotMatch(workflow, /pull_request/);
-  assert.match(workflow, /^on:\n  push:\n    branches: \[main\]\n    paths:\n(      - '[^']+'\n)+  workflow_dispatch:/m);
+  // Only on request: nothing is tagged by a merge.
+  const triggers = /^on:\n((?:  .*\n)+)/m.exec(workflow)[1];
+  assert.deepEqual([...triggers.matchAll(/^  (\w+):/gm)].map((m) => m[1]), ['workflow_dispatch']);
   assert.match(workflow, /^permissions:\n  contents: write\n\n/m);
   assert.equal(workflow.match(/^permissions:/gm).length, 1);
   assert.match(workflow, /^    if: github\.ref == 'refs\/heads\/main'$/m);
@@ -74,8 +76,4 @@ test('the release workflow runs only on main, writes only contents, and takes no
   for (const line of workflow.split('\n').filter((l) => l.includes('${{'))) assert.match(line, /^\s*(if|[A-Z_]+):\s/, `expression inline in a command: ${line.trim()}`);
   // Third-party actions are pinned to a version.
   for (const [, action] of workflow.matchAll(/uses:\s*(\S+)/g)) assert.match(action, /^actions\/[a-z-]+@v\d+$/, action);
-  // The paths that start a pre-release are the ones the package ships.
-  const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-  const watched = [...workflow.matchAll(/^      - '([^']+)'$/gm)].map((m) => m[1].replace(/\/\*\*$/, ''));
-  assert.deepEqual(watched.sort(), [...pkg.files, 'package.json'].sort());
 });
