@@ -27,7 +27,7 @@ test('the archive holds the source, the stylesheet and the tokens, and nothing f
   for (const needed of ['package.json', 'styles.css', 'src/index.ts', 'src/icons.generated.ts', 'design-system/project/tokens.json']) {
     assert.ok(paths.includes(needed), `missing from the archive: ${needed}`);
   }
-  const stray = paths.filter((p) => /^(examples?|test|scripts|\.render)\//.test(p) || /^design-system\/(previews|project\/components)\//.test(p));
+  const stray = paths.filter((p) => /^(examples?|test|scripts|\.render|\.github)\//.test(p) || p === 'CLAUDE.md' || /^design-system\/(previews|project\/components)\//.test(p));
   assert.deepEqual(stray, []);
 });
 
@@ -60,4 +60,22 @@ test('a file without "use client" stays usable from a Server Component', () => {
     assert.doesNotMatch(text, /\buse(State|Effect|LayoutEffect|Ref|Reducer|SyncExternalStore|Transition|Optimistic)\s*\(/, `${file}: hooks with state or effects need "use client"`);
     assert.doesNotMatch(text, /\bon[A-Z]\w*=\{\s*(async\s*)?(\(|function\b)/, `${file}: creates an event handler; pass handlers through or add "use client"`);
   }
+});
+
+test('the release workflow runs only on main, writes only contents, and takes nothing from the event inline', () => {
+  const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
+  // Never on pull requests: it would run with write access on code nobody has merged.
+  assert.doesNotMatch(workflow, /pull_request/);
+  assert.match(workflow, /^on:\n  push:\n    branches: \[main\]\n    paths:\n(      - '[^']+'\n)+  workflow_dispatch:/m);
+  assert.match(workflow, /^permissions:\n  contents: write\n\n/m);
+  assert.equal(workflow.match(/^permissions:/gm).length, 1);
+  assert.match(workflow, /^    if: github\.ref == 'refs\/heads\/main'$/m);
+  // An expression is allowed in `if:` and in an environment variable, never inside a script.
+  for (const line of workflow.split('\n').filter((l) => l.includes('${{'))) assert.match(line, /^\s*(if|[A-Z_]+):\s/, `expression inline in a command: ${line.trim()}`);
+  // Third-party actions are pinned to a version.
+  for (const [, action] of workflow.matchAll(/uses:\s*(\S+)/g)) assert.match(action, /^actions\/[a-z-]+@v\d+$/, action);
+  // The paths that start a pre-release are the ones the package ships.
+  const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  const watched = [...workflow.matchAll(/^      - '([^']+)'$/gm)].map((m) => m[1].replace(/\/\*\*$/, ''));
+  assert.deepEqual(watched.sort(), [...pkg.files, 'package.json'].sort());
 });
