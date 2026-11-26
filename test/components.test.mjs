@@ -39,3 +39,18 @@ test('layout helpers carry their class and pass everything else through', () => 
   assert.equal(html(ui.List), '<ul class="pb-list"></ul>');
   assert.equal(html(ui.List, { as: 'div' }), '<div class="pb-list"></div>');
 });
+
+test('IconButton: named by its label, optional dot, a link with href', () => {
+  assert.equal(html(ui.IconButton, { label: 'Chiudi', icon: 'x', variant: 'ghost' }).replace(/<svg.*<\/svg>/, '<svg/>'), '<button type="button" class="pb-icon-btn pb-icon-btn--ghost" aria-label="Chiudi"><svg/></button>');
+  assert.match(html(ui.IconButton, { label: 'Notifiche, 2 non lette', icon: 'bell', dot: true }), /<\/svg><span class="pb-dot" aria-hidden="true"><\/span><\/button>$/);
+  assert.match(html(ui.IconButton, { label: 'Torna ai pazienti', icon: 'chevron-left', href: '/pazienti', className: 'pb-page-head__back' }), /^<a href="\/pazienti" class="pb-icon-btn pb-page-head__back" aria-label="Torna ai pazienti">/);
+});
+
+test('Chip and Segmented state their selection with aria-pressed', () => {
+  assert.match(html(ui.Chip, { pressed: true, icon: 'check' }, 'YouTube'), /^<button type="button" class="pb-chip" aria-pressed="true"><svg class="pb-icon pb-icon--sm"/);
+  assert.match(html(ui.Chip, { pressed: false }, 'TikTok'), /aria-pressed="false">TikTok</);
+  const segmented = html(ui.Segmented, { label: 'Vista', value: 'b', options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] });
+  assert.match(segmented, /^<div class="pb-segmented" role="group" aria-label="Vista">/);
+  assert.match(segmented, /aria-pressed="false" data-value="a">A<\/button><button type="button" aria-pressed="true" data-value="b">B</);
+  assert.equal(html(ui.Segmented, { label: 'Vuoto', value: '', options: [] }), '<div class="pb-segmented" role="group" aria-label="Vuoto"></div>');
+});

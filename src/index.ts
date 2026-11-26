@@ -17,6 +17,11 @@ export { List } from './layout/List';
 
 export { Button } from './actions/Button';
 export type { ButtonProps } from './actions/Button';
+export { IconButton } from './actions/IconButton';
+export type { IconButtonProps } from './actions/IconButton';
+export { Chip } from './actions/Chip';
+export type { ChipProps } from './actions/Chip';
+export { Dot } from './actions/Dot';
 export { Segmented } from './actions/Segmented';
 export type { SegmentedProps } from './actions/Segmented';
 

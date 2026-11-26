@@ -23,7 +23,7 @@
     "check:render": "node scripts/render-check.mjs",
     "tokens:css": "node scripts/tokens-css.mjs",
     "build:package": "node scripts/build-package.mjs",
-    "build:previews": "node scripts/build-previews.mjs",
+    "build:previews": "node --import tsx scripts/build-previews.mjs",
     "example:build": "node scripts/example-install.mjs && npm --prefix example run build && npm --prefix example run typecheck",
     "test:example": "npm run example:build && node --test \"test/example/*.test.mjs\""
   },
