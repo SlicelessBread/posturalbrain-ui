@@ -53,7 +53,10 @@ test('Chip and Segmented state their selection with aria-pressed', () => {
   assert.match(html(ui.Chip, { pressed: true, icon: 'check' }, 'YouTube'), /^<button type="button" class="pb-chip" aria-pressed="true"><svg class="pb-icon pb-icon--sm"/);
   assert.match(html(ui.Chip, { pressed: false }, 'TikTok'), /aria-pressed="false">TikTok</);
   const segmented = html(ui.Segmented, { label: 'Vista', value: 'b', options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] });
-  assert.match(segmented, /^<div class="pb-segmented" role="group" aria-label="Vista">/);
+  // The highlight slides to the chosen option: the stylesheet is told which one, out of how many.
+  assert.match(segmented, /^<div class="pb-segmented" role="group" aria-label="Vista" style="--pb-count:2;--pb-index:1">/);
+  // Nothing chosen: no index, so no highlight. The caller's own style is kept.
+  assert.match(html(ui.Segmented, { label: 'Vista', value: 'zzz', style: { marginTop: 4 }, options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] }), /style="margin-top:4px;--pb-count:2">/);
   assert.match(segmented, /aria-pressed="false" data-value="a">A<\/button><button type="button" aria-pressed="true" data-value="b">B</);
   assert.equal(html(ui.Segmented, { label: 'Vuoto', value: '', options: [] }), '<div class="pb-segmented" role="group" aria-label="Vuoto"></div>');
 });
@@ -79,6 +82,10 @@ test('an error is announced at once: Banner and Toast use role="alert" only for 
   assert.match(html(ui.Banner, { tone: 'warn', title: 'Attenzione' }), /role="status"/);
   assert.match(html(ui.Toast, { tone: 'danger' }, 'Errore'), /role="alert"/);
   assert.match(html(ui.Toast, null, 'Link copiato'), /^<div class="pb-toast" role="status"><span class="pb-toast__text">Link copiato<\/span><\/div>$/);
+  // A toast that is not open draws nothing; an icon set to nothing on purpose stays off.
+  assert.equal(html(ui.Toast, { open: false }, 'Link copiato'), '');
+  assert.doesNotMatch(html(ui.Toast, { tone: 'ok', icon: null }, 'Salvato'), /<svg/);
+  assert.match(html(ui.Toast, { tone: 'ok' }, 'Salvato'), /<svg/);
   assert.match(html(ui.Banner, { tone: 'ok', title: 'Fatto' }), /<div class="pb-banner__body"><strong>Fatto<\/strong><\/div>/);
 });
 
@@ -86,6 +93,8 @@ test('BottomNav: an empty list draws an empty bar, and only the current section 
   assert.equal(html(ui.BottomNav, { items: [] }), '<nav class="pb-bottomnav" aria-label="Sezioni"></nav>');
   const nav = html(ui.BottomNav, { items: [{ href: '/a', label: 'A', icon: 'house' }, { href: '/b', label: 'B', icon: 'user', current: true }] });
   assert.equal(nav.match(/aria-current="page"/g).length, 1);
+  assert.match(nav, /^<nav class="pb-bottomnav" aria-label="Sezioni" style="--pb-count:2;--pb-index:1">/);
+  assert.match(html(ui.BottomNav, { items: [{ href: '/a', label: 'A', icon: 'house' }] }), /style="--pb-count:1">/);
   assert.match(nav, /<a href="\/b" aria-current="page"><svg[^>]*>.*?<\/svg><span>B<\/span><\/a>/);
 });
 

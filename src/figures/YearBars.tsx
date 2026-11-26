@@ -34,7 +34,8 @@ export function YearBars({ title, total, bars, max, className }: YearBarsProps) 
       </figcaption>
       <ol className="pb-bars__plot">
         {bars.map((bar, index) => {
-          const style: StyleWithVars = { '--value': fraction(bar.value, top) };
+          // --i staggers the bars when they grow in.
+          const style: StyleWithVars = { '--value': fraction(bar.value, top), '--i': index };
           return (
             <li key={index} className={cx('pb-bars__col', bar.state && `pb-bars__col--${bar.state}`)}>
               <span className="pb-bars__bar" style={style} />

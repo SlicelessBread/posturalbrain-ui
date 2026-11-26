@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, ConfirmDialog, DayList, DayListDay, EventChip, List, MoneyField, SearchField, SectionTitle, Segmented, Sheet, Stack, Switch, Tabs, TextField, UploadZone, WeekColumns, type WeekDay } from 'posturalbrain-ui';
+import { Button, ConfirmDialog, DayList, DayListDay, EventChip, List, MoneyField, SearchField, SectionTitle, Segmented, Sheet, Stack, Switch, Tabs, TextField, Toast, UploadZone, WeekColumns, type WeekDay } from 'posturalbrain-ui';
 
 const week: WeekDay[] = [
   { id: 'lun', weekday: 'Lun', day: 30, label: 'Lunedì 30 novembre, oggi, 1 evento', today: true, events: [{ kind: 'due', text: 'AC' }] },
@@ -26,6 +26,7 @@ export function Playground() {
   const [closes, setCloses] = useState(0);
   const [confirm, setConfirm] = useState(false);
   const [outcome, setOutcome] = useState('');
+  const [toast, setToast] = useState(false);
 
   return (
     <Stack>
@@ -64,6 +65,9 @@ export function Playground() {
         >
           <TextField label="Nome e cognome" autoComplete="off" />
           <MoneyField label="Stipendio mensile" />
+          {/* An app often clears what a sheet shows in the same breath as it closes it. */}
+          {sheet ? <p id="sheet-note" className="text-label pb-muted">Nota che l'app toglie chiudendo</p> : null}
+          <Button variant="ghost" onClick={() => { setSheet(false); setTimeout(() => setSheet(true), 60); }}>Chiudi e riapri</Button>
           <Button variant="ghost" onClick={() => setSheetMounted(false)}>Togli il foglio dalla pagina</Button>
         </Sheet>
       ) : null}
@@ -78,6 +82,9 @@ export function Playground() {
       >
         Verranno eliminati anche i suoi 2 percorsi. Non si può annullare.
       </ConfirmDialog>
+
+      <Button onClick={() => setToast((shown) => !shown)}>{toast ? "Nascondi l'avviso" : "Mostra l'avviso"}</Button>
+      <Toast open={toast} tone="ok">Collaboratore salvato</Toast>
 
       <p id="state" className="text-caption pb-subtle" data-view={view} data-tab={tab} data-notify={String(notify)} data-query={query} data-day={day} data-file={file} data-sheet={String(sheet)} data-closes={closes} data-outcome={outcome}>
         Stato per la prova automatica

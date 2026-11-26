@@ -7,7 +7,9 @@
 :root {
   --pb-duration-fast: 120ms;
   --pb-duration: 200ms;
+  --pb-duration-slow: 320ms;
   --pb-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --pb-ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --pb-gradient-ground: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 45%, var(--bg-2) 100%);
   --pb-gradient-accent: linear-gradient(135deg, var(--accent-hi), var(--accent-strong));
   --pb-blur-bar: var(--blur-bar) saturate(170%);
@@ -99,8 +101,22 @@ html:has(> .pb-app) {
   50% { opacity: 0.1; }
 }
 
+@keyframes pb-rise {
+  from { opacity: 0; translate: 0 6px; }
+}
+
+@keyframes pb-grow {
+  from { scale: 1 0; }
+}
+
+/* Motion. Things that move (slide, grow, scale) are declared inside `prefers-reduced-motion: no-preference`.
+   With reduced motion nothing travels and nothing loops; changes of colour and short fades remain,
+   so a panel still arrives gently instead of popping. */
 @media (prefers-reduced-motion: reduce) {
-  .pb-app *, .pb-app *::before, .pb-app *::after { animation: none !important; transition: none !important; }
+  .pb-app *, .pb-app *::before, .pb-app *::after {
+    animation: none !important;
+    transition-property: color, background-color, border-color, opacity !important;
+  }
 }
 
 /* ---------- Layout helpers ---------- */
@@ -143,6 +159,17 @@ html:has(> .pb-app) {
 }
 
 .pb-page > * { min-width: 0; }
+
+/* The blocks of a page arrive one after the other. `backwards`, not `both`: once it has ended the
+   animation must leave no transform behind, or a block would trap the fixed elements inside it. */
+@media (prefers-reduced-motion: no-preference) {
+  .pb-page > * { animation: pb-rise 180ms var(--pb-ease) backwards; }
+  .pb-page > :nth-child(2) { animation-delay: 30ms; }
+  .pb-page > :nth-child(3) { animation-delay: 60ms; }
+  .pb-page > :nth-child(4) { animation-delay: 90ms; }
+  .pb-page > :nth-child(5) { animation-delay: 120ms; }
+  .pb-page > :nth-child(n + 6) { animation-delay: 150ms; }
+}
 
 /* ---------- Actions ---------- */
 
@@ -247,6 +274,7 @@ html:has(> .pb-app) {
 }
 
 .pb-segmented {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
@@ -258,6 +286,8 @@ html:has(> .pb-app) {
 }
 
 .pb-segmented > button {
+  position: relative;
+  z-index: 1;
   min-height: var(--tap-min);
   padding: 0 var(--space-2);
   border: 0;
@@ -271,10 +301,27 @@ html:has(> .pb-app) {
   transition: background-color var(--pb-duration) var(--pb-ease), color var(--pb-duration) var(--pb-ease);
 }
 
-.pb-segmented > button[aria-pressed="true"] {
+.pb-segmented > button[aria-pressed="true"] { color: var(--accent); }
+
+/* The highlight is one element that slides under the chosen option: the component says which
+   (--pb-index) out of how many (--pb-count). The border is transparent so that it shows when
+   colours are forced. */
+.pb-segmented::before {
+  content: "";
+  position: absolute;
+  top: var(--space-1);
+  bottom: var(--space-1);
+  left: var(--space-1);
+  box-sizing: border-box;
+  width: calc((100% - var(--space-1) * (var(--pb-count, 1) + 1)) / var(--pb-count, 1));
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: var(--accent-soft);
-  color: var(--accent);
+  translate: calc(var(--pb-index, 0) * (100% + var(--space-1))) 0;
+  transition: translate var(--pb-duration) var(--pb-ease);
 }
+
+.pb-segmented:not(:has(> [aria-pressed="true"]))::before { display: none; }
 
 .pb-chip {
   display: inline-flex;
@@ -385,6 +432,8 @@ html:has(> .pb-app) {
 }
 
 .pb-bottomnav > a {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -403,7 +452,28 @@ html:has(> .pb-app) {
   box-sizing: content-box;
   padding: var(--space-1) var(--space-4);
   border-radius: var(--radius-pill);
-  transition: background-color var(--pb-duration) var(--pb-ease);
+}
+
+/* The pill behind the current icon is one element as wide as a column, cut to the pill, that slides
+   to the current destination (--pb-index out of --pb-count, from the component). */
+.pb-bottomnav::before {
+  content: "";
+  position: absolute;
+  /* Icon with its padding (32px), 2px, label (16px): centred in the bar like the links. */
+  top: calc((var(--nav-h) - 50px) / 2);
+  left: var(--space-1);
+  width: calc((100% - 2 * var(--space-1)) / var(--pb-count, 1));
+  height: 32px;
+  background: var(--accent-soft);
+  clip-path: inset(0 calc(50% - 28px) round var(--radius-pill));
+  translate: calc(var(--pb-index, 0) * 100%) 0;
+  transition: translate var(--pb-duration) var(--pb-ease);
+}
+
+.pb-bottomnav:not(:has(> [aria-current="page"]))::before { display: none; }
+
+@media (forced-colors: active) {
+  .pb-bottomnav > a[aria-current="page"] > .pb-icon { outline: 1px solid; }
 }
 
 .pb-bottomnav > a > span {
@@ -414,10 +484,10 @@ html:has(> .pb-app) {
 }
 
 .pb-bottomnav > a[aria-current="page"] { color: var(--accent); }
-.pb-bottomnav > a[aria-current="page"] > .pb-icon { background: var(--accent-soft); }
 .pb-bottomnav > a:focus-visible { outline-offset: -4px; }
 
 .pb-tabs {
+  position: relative;
   display: flex;
   gap: var(--space-1);
   overflow-x: auto;
@@ -449,6 +519,30 @@ html:has(> .pb-app) {
 }
 
 .pb-tabs > [role="tab"]:focus-visible { outline-offset: -3px; }
+
+/* Where the browser can anchor an element to another, the line under the chosen tab is one element
+   that slides to it. Elsewhere the chosen tab keeps its own border, which jumps. */
+@supports (position-anchor: --pb-tab) and (anchor-scope: --pb-tab) {
+  .pb-tabs { anchor-scope: --pb-tab; }
+
+  .pb-tabs > [role="tab"][aria-selected="true"] {
+    border-bottom-color: transparent;
+    anchor-name: --pb-tab;
+  }
+
+  .pb-tabs::before {
+    content: "";
+    position: absolute;
+    position-anchor: --pb-tab;
+    top: calc(anchor(bottom) - 2px);
+    left: anchor(left);
+    right: anchor(right);
+    border-bottom: 2px solid var(--accent);
+    transition: left var(--pb-duration) var(--pb-ease), right var(--pb-duration) var(--pb-ease);
+  }
+
+  .pb-tabs:not(:has(> [aria-selected="true"]))::before { display: none; }
+}
 
 .pb-page-head {
   display: flex;
@@ -801,6 +895,15 @@ a.pb-list-row:focus-visible { outline-offset: -3px; }
   background: var(--text-3);
 }
 
+/* The bars grow from the baseline, one month after the other (--i, from the component). */
+@media (prefers-reduced-motion: no-preference) {
+  .pb-bars__bar {
+    transform-origin: bottom;
+    animation: pb-grow var(--pb-duration-slow) var(--pb-ease) backwards;
+    animation-delay: calc(120ms + var(--i, 0) * 20ms);
+  }
+}
+
 .pb-bars__label {
   color: var(--text-3);
   font-size: 12px;
@@ -939,6 +1042,7 @@ textarea.pb-input { resize: vertical; }
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
+  transition: background-color var(--pb-duration-fast) var(--pb-ease), border-color var(--pb-duration-fast) var(--pb-ease);
 }
 
 .pb-check > input:checked {
@@ -946,7 +1050,8 @@ textarea.pb-input { resize: vertical; }
   background: var(--accent-strong);
 }
 
-.pb-check > input:checked::after {
+/* The tick is always there and only shows when checked, so that it can fade in. */
+.pb-check > input::after {
   content: "";
   position: absolute;
   top: 3px;
@@ -955,8 +1060,13 @@ textarea.pb-input { resize: vertical; }
   height: 11px;
   border: solid var(--on-accent);
   border-width: 0 2.5px 2.5px 0;
-  transform: rotate(45deg);
+  opacity: 0;
+  rotate: 45deg;
+  scale: 0.6;
+  transition: opacity var(--pb-duration-fast) var(--pb-ease), scale var(--pb-duration-fast) var(--pb-ease);
 }
+
+.pb-check > input:checked::after { opacity: 1; scale: 1; }
 
 .pb-check > input:disabled,
 .pb-check > input:disabled + * { opacity: 0.5; cursor: not-allowed; }
@@ -1035,7 +1145,20 @@ textarea.pb-input { resize: vertical; }
   color: var(--text);
   -webkit-backdrop-filter: var(--pb-blur-bar);
   backdrop-filter: var(--pb-blur-bar);
+  transition: opacity var(--pb-duration) var(--pb-ease), translate var(--pb-duration) var(--pb-ease);
 }
+
+@starting-style {
+  .pb-toast { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @starting-style {
+    .pb-toast { translate: 0 8px; }
+  }
+}
+
+.pb-toast[data-closing] { opacity: 0; transition-timing-function: var(--pb-ease-exit); }
 
 .pb-frame > .pb-toast { position: relative; inset: auto; margin: var(--space-3); }
 .pb-toast__text { flex: 1; min-width: 0; padding: var(--space-2) 0; font-size: 14px; line-height: 20px; font-weight: 600; }
@@ -1120,7 +1243,14 @@ textarea.pb-input { resize: vertical; }
   background: var(--scrim);
   -webkit-backdrop-filter: var(--blur-scrim);
   backdrop-filter: var(--blur-scrim);
+  transition: opacity var(--pb-duration-slow) var(--pb-ease);
 }
+
+@starting-style {
+  .pb-sheet-backdrop { opacity: 0; }
+}
+
+.pb-sheet-backdrop[data-closing] { opacity: 0; }
 
 .pb-sheet {
   position: fixed;
@@ -1141,6 +1271,48 @@ textarea.pb-input { resize: vertical; }
   color: var(--text);
   -webkit-backdrop-filter: var(--pb-blur-bar);
   backdrop-filter: var(--pb-blur-bar);
+  transition: translate var(--pb-duration-slow) var(--pb-ease), opacity var(--pb-duration-slow) var(--pb-ease);
+}
+
+/* Entry: the styles the panel starts from when it is first drawn. Exit: `data-closing`, set by the
+   component, which closes the dialog once the transition has ended (Safari cannot yet animate a
+   <dialog> on its way out of the top layer on its own). */
+@media (prefers-reduced-motion: no-preference) {
+  @starting-style {
+    .pb-sheet { translate: 0 100%; }
+    .pb-dialog { scale: 0.96; }
+  }
+
+  .pb-sheet[data-closing] { translate: 0 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @starting-style {
+    .pb-sheet { opacity: 0; }
+  }
+
+  .pb-sheet[data-closing] { opacity: 0; }
+}
+
+@starting-style {
+  .pb-dialog { opacity: 0; }
+}
+
+.pb-dialog[data-closing] { opacity: 0; }
+
+.pb-sheet[data-closing],
+.pb-dialog[data-closing],
+.pb-sheet-backdrop[data-closing] {
+  transition-duration: var(--pb-duration);
+  transition-timing-function: var(--pb-ease-exit);
+}
+
+/* With reduced motion what is left is a fade: keep it short, in and out. */
+@media (prefers-reduced-motion: reduce) {
+  .pb-toast, .pb-toast[data-closing],
+  .pb-sheet, .pb-sheet[data-closing],
+  .pb-dialog, .pb-dialog[data-closing],
+  .pb-sheet-backdrop, .pb-sheet-backdrop[data-closing] { transition-duration: 100ms; }
 }
 
 /* As <dialog> elements: stay hidden until opened, and leave the veil to .pb-sheet-backdrop
@@ -1198,7 +1370,9 @@ dialog.pb-dialog:not([open]) { display: none; }
   background: var(--overlay);
   box-shadow: var(--shadow-2);
   color: var(--text);
-  transform: translateY(-50%);
+  /* `translate`, not `transform`: the entry scales the box around its own centre. */
+  translate: 0 -50%;
+  transition: opacity var(--pb-duration) var(--pb-ease), scale var(--pb-duration) var(--pb-ease);
 }
 
 .pb-dialog__actions {
