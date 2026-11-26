@@ -16,6 +16,7 @@ const OUT = '.render/parity';
 // differs fails the test, so the list stays true.
 export const EXPECTED = {
   Button: { aria: true, reason: 'a loading button is now also disabled, so the keyboard cannot fire it twice' },
+  ScreenVideo: { pixels: true, aria: true, reason: 'its search field is the SearchField component: see SearchField' },
   UploadZone: { aria: true, reason: 'while a file is dragged over it the zone stays the same label with its file input, so the drop target is still a control' },
   SearchField: { pixels: true, aria: true, reason: 'one markup for the empty and the filled field: the input is named by aria-label instead of a hidden label text, and the placeholder now starts where typed text starts (it sat 8px further right)' },
 };
