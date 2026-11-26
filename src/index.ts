@@ -17,3 +17,13 @@ export { List } from './layout/List';
 
 export { Button } from './actions/Button';
 export type { ButtonProps } from './actions/Button';
+export { Segmented } from './actions/Segmented';
+export type { SegmentedProps } from './actions/Segmented';
+
+export { ThemeSwitch } from './access/ThemeSwitch';
+
+export { applyThemeChoice, parseChoice, resolveTheme, themeScript, THEME_STORAGE_KEY } from './theme/theme';
+export type { Theme, ThemeChoice } from './theme/theme';
+export { THEME_COLORS } from './theme/colors.generated';
+export { ThemeScript } from './theme/ThemeScript';
+export { useTheme } from './theme/useTheme';

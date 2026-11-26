@@ -51,3 +51,29 @@ test('the app compiles the package: styles and fonts reach the page', async () =
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('the theme switch changes the theme, and the choice is back before the page paints after a reload', async () => {
+  const { page, errors, context } = await open({ colorScheme: 'dark' });
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark');
+  await page.getByRole('button', { name: 'Chiaro' }).click();
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'light');
+  assert.equal(await page.getByRole('button', { name: 'Chiaro' }).getAttribute('aria-pressed'), 'true');
+  await page.screenshot({ path: '.render/example-light.png' });
+
+  // Record the theme when the document has been parsed, before the app's own scripts hydrate it.
+  await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { window.__themeWhenParsed = document.documentElement.dataset.theme; }));
+  await page.reload({ waitUntil: 'networkidle' });
+  assert.equal(await page.evaluate(() => window.__themeWhenParsed), 'light');
+  assert.equal(await page.getByRole('button', { name: 'Chiaro' }).getAttribute('aria-pressed'), 'true');
+
+  await page.getByRole('button', { name: 'Automatico' }).click();
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark');
+  assert.deepEqual(errors, [], 'console errors (hydration included)');
+  await context.close();
+});
+
+test('the server sends the theme script in the head of the document', async () => {
+  const html = await (await fetch(server.url)).text();
+  const head = html.slice(0, html.indexOf('</head>'));
+  assert.match(head, /<script>\(function\(\)\{try\{var k="pb-theme"/);
+});

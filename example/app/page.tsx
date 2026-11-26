@@ -1,4 +1,4 @@
-import { Button, Page, Row, Stack } from 'posturalbrain-ui';
+import { Button, Page, Row, Stack, ThemeSwitch } from 'posturalbrain-ui';
 
 export default function Home() {
   return (
@@ -10,6 +10,7 @@ export default function Home() {
           <Button>Annulla</Button>
           <Button variant="ghost" href="#altro">Vedi tutte</Button>
         </Row>
+        <ThemeSwitch />
       </Stack>
     </Page>
   );
