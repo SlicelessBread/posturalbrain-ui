@@ -49,7 +49,9 @@ run `build:previews`. `npm test` fails when a generated file is stale.
 - **The Design System page** (a Claude artifact, linked in the README) is published from
   `design-system/project/`. Its previews are generated: `examples/<Name>.tsx` rendered to static markup by
   `scripts/build-previews.mjs`. Only the cover is a hand-written fragment. Changing a component therefore changes
-  the page: regenerate, then republish the changed files to the page.
+  the page: regenerate, then republish the changed files to the page. `components/bundle.js` is an empty namespace
+  that must stay: without it the page shows every preview as a still picture (no preview script, no theme menu).
+  The page cannot be opened from a session (bot check): what it really shows has to be confirmed by the owner.
 - **Example app** (`example/`): a Next 16 app that installs the packed archive the way a real app does. It is the
   only place where the components are hydrated and driven in a browser.
 

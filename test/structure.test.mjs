@@ -125,3 +125,16 @@ test('the public previews use invented names only', () => {
   for (const [name, text] of [...exampleSources, ...packageSources]) assert.doesNotMatch(text, /Rugarli|Giorgio/i, name);
   assert.doesNotMatch(read(PROJECT, 'tokens.json') + read(PROJECT, 'README.md'), /Rugarli|Giorgio/i);
 });
+
+test('the page can run the previews: bundle.js exists, declares the namespace and exports nothing', () => {
+  // Without components/bundle.js the Design System page shows every preview as a still picture:
+  // no preview script runs and the theme menu does nothing.
+  const js = read(COMPONENTS, 'bundle.js');
+  const header = /^\/\* @ds-bundle: (\{.*\}) \*\/\n/.exec(js);
+  assert.ok(header, 'the first line must be the @ds-bundle header');
+  assert.deepEqual(JSON.parse(header[1]), { format: 4, namespace: 'PosturalBrain', components: [] });
+  assert.match(js, /^window\.PosturalBrain = /m);
+  // The page inlines this file in a <script>: neither sequence may appear in it.
+  assert.doesNotMatch(js, /<\/script|<!--/i);
+  assert.doesNotMatch(js, /\b(import|require|fetch)\b/);
+});
