@@ -115,7 +115,7 @@ test('every component class in the stylesheet is shown in at least one preview',
 });
 
 test('the public previews use invented names only', () => {
-  for (const d of dirs) assert.doesNotMatch(preview(d), /Rugarli/i, d);
-  for (const [name, text] of [...exampleSources, ...packageSources]) assert.doesNotMatch(text, /Rugarli/i, name);
-  assert.doesNotMatch(read(PROJECT, 'tokens.json') + read(PROJECT, 'README.md'), /Rugarli/i);
+  for (const d of dirs) assert.doesNotMatch(preview(d), /Rugarli|Giorgio/i, d);
+  for (const [name, text] of [...exampleSources, ...packageSources]) assert.doesNotMatch(text, /Rugarli|Giorgio/i, name);
+  assert.doesNotMatch(read(PROJECT, 'tokens.json') + read(PROJECT, 'README.md'), /Rugarli|Giorgio/i);
 });

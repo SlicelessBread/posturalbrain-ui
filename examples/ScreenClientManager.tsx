@@ -13,7 +13,7 @@ export default function Example() {
         <IconButton variant="ghost" icon="bell" label="Notifiche, 2 non lette" dot />
       </TopBar>
       <Page>
-        <PageHeader display title="Buongiorno, Giorgio" subtitle="Lunedì 30 novembre 2026" />
+        <PageHeader display title="Buongiorno, Marco" subtitle="Lunedì 30 novembre 2026" />
         <Grid2>
           <MiniStat value="24" label="Pazienti attivi" />
           <MiniStat value="3" label="Scadenze entro 7 giorni" />

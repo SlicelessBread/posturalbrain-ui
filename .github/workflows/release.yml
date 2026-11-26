@@ -1,22 +1,15 @@
-# Tags and publishes the package.
+# Tags and publishes the package. It runs only on request, from "Run workflow" on main:
 #
-# - A merge into main that touches what the package ships gets a pre-release on its own:
-#   v0.0.2-pre.1, v0.0.2-pre.2, ... (the counter belongs to the release being prepared).
-# - A release is made on request, from "Run workflow": it raises the number, writes it into
-#   package.json with a commit on main, and tags that commit.
+# - kind `pre-release` tags the current main: v0.0.2-pre.1, v0.0.2-pre.2, ... (the counter
+#   belongs to the release being prepared);
+# - kind `release` raises the number, writes it into package.json with a commit on main, and
+#   tags that commit.
 #
 # The numbering rules are in scripts/release-version.mjs. The tests are not run here: they need
 # Playwright with Chromium, and are run before every pull request.
 name: Release
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'styles.css'
-      - 'design-system/project/tokens.json'
-      - 'package.json'
   workflow_dispatch:
     inputs:
       kind:
@@ -43,8 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Everything that comes from the event enters the scripts through the environment, never inline.
-      REQUESTED_KIND: ${{ github.event_name == 'workflow_dispatch' && inputs.kind || 'pre-release' }}
-      REQUESTED_BUMP: ${{ github.event_name == 'workflow_dispatch' && inputs.bump || 'patch' }}
+      REQUESTED_KIND: ${{ inputs.kind }}
+      REQUESTED_BUMP: ${{ inputs.bump }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
