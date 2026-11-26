@@ -1,0 +1,94 @@
+# Tags and publishes the package.
+#
+# - A merge into main that touches what the package ships gets a pre-release on its own:
+#   v0.0.2-pre.1, v0.0.2-pre.2, ... (the counter belongs to the release being prepared).
+# - A release is made on request, from "Run workflow": it raises the number, writes it into
+#   package.json with a commit on main, and tags that commit.
+#
+# The numbering rules are in scripts/release-version.mjs. The tests are not run here: they need
+# Playwright with Chromium, and are run before every pull request.
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'styles.css'
+      - 'design-system/project/tokens.json'
+      - 'package.json'
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: 'Tipo di pubblicazione'
+        type: choice
+        options: [pre-release, release]
+        default: pre-release
+      bump:
+        description: 'Cifra da aumentare (vale solo per una release)'
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      # Everything that comes from the event enters the scripts through the environment, never inline.
+      REQUESTED_KIND: ${{ github.event_name == 'workflow_dispatch' && inputs.kind || 'pre-release' }}
+      REQUESTED_BUMP: ${{ github.event_name == 'workflow_dispatch' && inputs.bump || 'patch' }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Work out the tag
+        id: next
+        run: |
+          kind=prerelease
+          if [ "$REQUESTED_KIND" = "release" ]; then kind=release; fi
+          # One pre-release per commit; and a commit that is already a release is never released twice.
+          if [ "$kind" = "prerelease" ]; then here="$(git tag --points-at HEAD --list 'v*')"; else here="$(git tag --points-at HEAD --list 'v*' | grep -Ex 'v[0-9]+\.[0-9]+\.[0-9]+' || true)"; fi
+          if [ -n "$here" ]; then
+            echo "This commit already has $here: nothing to do."
+            exit 0
+          fi
+          tag="$(node scripts/release-version.mjs "$kind" "$REQUESTED_BUMP")"
+          echo "kind=$kind" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Next: $tag ($kind)"
+
+      - name: Write the version of a release into package.json
+        if: steps.next.outputs.kind == 'release'
+        env:
+          TAG: ${{ steps.next.outputs.tag }}
+        run: |
+          version="${TAG#v}"
+          if [ "$(node -p "require('./package.json').version")" != "$version" ]; then
+            npm version "$version" --no-git-tag-version
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit --all --message "Release $TAG"
+            git push origin HEAD:main
+          fi
+
+      - name: Create the tag and the release
+        if: steps.next.outputs.tag != ''
+        env:
+          TAG: ${{ steps.next.outputs.tag }}
+          KIND: ${{ steps.next.outputs.kind }}
+        run: |
+          if [ "$KIND" = "release" ]; then
+            gh release create "$TAG" --target "$(git rev-parse HEAD)" --title "$TAG" --generate-notes --latest
+          else
+            gh release create "$TAG" --target "$(git rev-parse HEAD)" --title "$TAG" --generate-notes --prerelease
+          fi
