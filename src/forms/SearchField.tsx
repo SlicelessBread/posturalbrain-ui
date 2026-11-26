@@ -6,7 +6,10 @@ import { Icon } from '../Icon';
 type SearchFieldProps = {
   /** What is searched, for assistive technology; usually the same words as the placeholder. */
   label: string;
-  /** With a handler, and some text in `value`, a button to clear the search appears. */
+  /**
+   * With a handler, and some text in `value`, a button to clear the search appears.
+   * The button goes away once the field is empty: give the focus back to the input in the handler.
+   */
   onClear?: () => void;
   clearLabel?: string;
 } & Omit<ComponentProps<'input'>, 'type' | 'aria-label'>;

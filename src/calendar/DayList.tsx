@@ -11,7 +11,7 @@ type DayListDayProps = {
   date: ReactNode;
   /** What to say for a day with nothing in it. */
   emptyLabel?: string;
-  /** The `EventChip`s of the day. */
+  /** The `EventChip`s of the day. `false` and `null` children do not count as events. */
   children?: ReactNode;
   className?: string;
 };
@@ -20,7 +20,7 @@ export function DayListDay({ date, emptyLabel = 'Nessun evento', children, class
   return (
     <section className={cx('pb-daylist__day', className)}>
       <h3 className="pb-daylist__date text-caption">{date}</h3>
-      {Children.count(children) > 0 ? children : <p className="pb-daylist__empty text-label">{emptyLabel}</p>}
+      {Children.toArray(children).length > 0 ? children : <p className="pb-daylist__empty text-label">{emptyLabel}</p>}
     </section>
   );
 }

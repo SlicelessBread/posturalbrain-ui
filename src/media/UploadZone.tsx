@@ -17,7 +17,7 @@ type UploadZoneProps = {
   dropTitle?: ReactNode;
   /** The `accept` of the file input ("video/mp4,video/quicktime"). */
   accept?: string;
-  /** A file was chosen or dropped. */
+  /** A file was chosen or dropped. A dropped file is not filtered by `accept`: check its type and size here. */
   onFile?: (file: File) => void;
   /** The name of the file; or, in the `error` status, what went wrong. */
   name?: ReactNode;
@@ -41,7 +41,8 @@ export function UploadZone({ status, title, hint, dropTitle, accept, onFile, nam
 
   if (status !== 'idle') {
     return (
-      <div className={cx('pb-upload', `pb-upload--${status}`, className)}>
+      // The zone the person was using is replaced: say what happened to the file.
+      <div className={cx('pb-upload', `pb-upload--${status}`, className)} role={status === 'error' ? 'alert' : 'status'}>
         <div className="pb-upload__file">
           <span className="pb-upload__icon" aria-hidden="true"><Icon name={ICONS[status]} /></span>
           <span className="pb-upload__name">
@@ -70,6 +71,12 @@ export function UploadZone({ status, title, hint, dropTitle, accept, onFile, nam
     setOver(true);
   }
 
+  function onDragLeave(event: DragEvent<HTMLLabelElement>) {
+    // Moving onto a child of the zone is not leaving it.
+    if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) return;
+    setOver(false);
+  }
+
   function onDrop(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
     setOver(false);
@@ -78,7 +85,7 @@ export function UploadZone({ status, title, hint, dropTitle, accept, onFile, nam
   }
 
   return (
-    <label className={cx('pb-upload', target ? 'pb-upload--dragging' : 'pb-upload--idle', className)} onDragEnter={onDragOver} onDragOver={onDragOver} onDragLeave={() => setOver(false)} onDrop={onDrop}>
+    <label className={cx('pb-upload', target ? 'pb-upload--dragging' : 'pb-upload--idle', className)} onDragEnter={onDragOver} onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
       {/* data-pb-compact: the input is hidden, the whole zone is the tap target. */}
       <input className="pb-sr-only" type="file" accept={accept} data-pb-compact="" onChange={onChange} />
       <span className="pb-upload__icon" aria-hidden="true"><Icon name="upload" /></span>

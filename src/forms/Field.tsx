@@ -13,27 +13,36 @@ export type FieldProps = {
 };
 
 type FieldShellProps = FieldProps & {
-  /** The id given to the help or error text, for the control's `aria-describedby`. */
+  /** Ids of the label text and of the help or error text, from `useField`. */
+  labelId: string;
   noteId: string;
   className?: string;
   children: ReactNode;
 };
 
-/** Internal: what a field component hands to its `Field` shell and to its control. */
-export function useField({ label, help, helpNumeric, error }: FieldProps) {
+type CallerAria = { 'aria-describedby'?: string; 'aria-invalid'?: boolean | 'true' | 'false' | 'grammar' | 'spelling' };
+
+/** Internal: what a field component hands to its `Field` shell and to its control (spread it after the caller's props). */
+export function useField({ label, help, helpNumeric, error }: FieldProps, caller: CallerAria = {}) {
+  const labelId = useId();
   const noteId = useId();
+  const note = error || help ? noteId : undefined;
   return {
-    shell: { label, help, helpNumeric, error, noteId },
-    // The control is marked invalid and points at the note under it.
-    control: { 'aria-invalid': error ? true : undefined, 'aria-describedby': error || help ? noteId : undefined },
+    shell: { label, help, helpNumeric, error, labelId, noteId },
+    control: {
+      // Named by the label text alone: the <label> also wraps the note, which is the description.
+      'aria-labelledby': labelId,
+      'aria-describedby': [caller['aria-describedby'], note].filter(Boolean).join(' ') || undefined,
+      'aria-invalid': error ? true : caller['aria-invalid'],
+    },
   };
 }
 
 /** Internal: the label, the control and its note, as one tap target. */
-export function Field({ label, help, helpNumeric, error, noteId, className, children }: FieldShellProps) {
+export function Field({ label, help, helpNumeric, error, labelId, noteId, className, children }: FieldShellProps) {
   return (
     <label className={cx('pb-field', error ? 'pb-field--invalid' : false, className)}>
-      <span className="pb-field__label text-label">{label}</span>
+      <span id={labelId} className="pb-field__label text-label">{label}</span>
       {children}
       {error ? (
         <span id={noteId} className="pb-field__error text-caption">

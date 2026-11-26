@@ -16,8 +16,15 @@ const OUT = '.render/parity';
 // differs fails the test, so the list stays true.
 export const EXPECTED = {
   Button: { aria: true, reason: 'a loading button is now also disabled, so the keyboard cannot fire it twice' },
-  ScreenVideo: { pixels: true, aria: true, reason: 'its search field is the SearchField component: see SearchField' },
-  UploadZone: { aria: true, reason: 'while a file is dragged over it the zone stays the same label with its file input, so the drop target is still a control' },
+  TextField: { aria: true, reason: 'a field is named by its label text alone; the help or error under it is its description, no longer part of the name' },
+  DateField: { aria: true, reason: 'a field is named by its label text alone; the help or error under it is its description, no longer part of the name' },
+  MoneyField: { aria: true, reason: 'a field is named by its label text alone; the help or error under it is its description, no longer part of the name' },
+  Sheet: { aria: true, reason: 'a field is named by its label text alone; the help or error under it is its description, no longer part of the name' },
+  ScreenSociAll: { aria: true, reason: 'a field is named by its label text alone; the help or error under it is its description, no longer part of the name; the finished upload is a status region' },
+  MonthGrid: { aria: true, reason: 'role="group" instead of a role="grid" that had no rows or cells' },
+  VideoCard: { aria: true, reason: 'the heart has one fixed name with the video title; aria-pressed alone says whether it is a favourite' },
+  ScreenVideo: { pixels: true, aria: true, reason: 'its search field is the SearchField component (see SearchField) and its hearts are named as in VideoCard' },
+  UploadZone: { aria: true, reason: 'while a file is dragged over it the zone stays the same label with its file input, so the drop target is still a control; the other states are status regions' },
   SearchField: { pixels: true, aria: true, reason: 'one markup for the empty and the filled field: the input is named by aria-label instead of a hidden label text, and the placeholder now starts where typed text starts (it sat 8px further right)' },
 };
 

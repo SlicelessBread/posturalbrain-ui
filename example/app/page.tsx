@@ -121,9 +121,8 @@ export default function Home() {
       <BottomNav
         linkAs={Link}
         items={[
-          { href: '/pazienti', label: 'Pazienti', icon: 'users' },
+          { href: '/altra', label: 'Pazienti', icon: 'users' },
           { href: '/', label: 'Home', icon: 'house', current: true },
-          { href: '/calendario', label: 'Calendario', icon: 'calendar-days' },
         ]}
       />
       <Toast tone="ok">Percorso salvato</Toast>

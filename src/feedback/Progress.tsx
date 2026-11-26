@@ -23,7 +23,7 @@ export function Progress({ label, value, max = 100, className }: ProgressProps) 
   const top = Number.isFinite(max) && max > 0 ? max : 100;
   const style: StyleWithVars = { '--value': filled };
   return (
-    <div className={cx('pb-progress', className)} role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={top} aria-valuenow={Math.round(filled * top * 100) / 100} style={style}>
+    <div className={cx('pb-progress', className)} role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={top} aria-valuenow={Number.isFinite(value) ? Math.min(Math.max(value, 0), top) : 0} style={style}>
       <span />
     </div>
   );

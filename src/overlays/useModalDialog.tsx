@@ -23,6 +23,8 @@ export function useModalDialog({ open, modal, onDismiss, lightDismiss }: Options
   // Whether the modal dialog is really showing: Esc closes it before the app updates `open`.
   const [showing, setShowing] = useState(false);
 
+  // `showing` is a dependency on purpose: when the person dismisses the dialog and the app keeps
+  // `open` true (it vetoed the close), the dialog is shown again instead of staying closed for good.
   useEffect(() => {
     const dialog = ref.current;
     if (!modal || !dialog) return;
@@ -33,10 +35,11 @@ export function useModalDialog({ open, modal, onDismiss, lightDismiss }: Options
       closedByProp.current = true;
       dialog.close();
     }
-  }, [open, modal]);
+  }, [open, modal, showing]);
 
   function onClose() {
-    setShowing(false);
+    // A close event can arrive after the dialog was opened again: trust the element, not the event.
+    setShowing(ref.current?.open ?? false);
     if (closedByProp.current) closedByProp.current = false;
     else onDismiss();
   }

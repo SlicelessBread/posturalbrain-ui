@@ -20,7 +20,7 @@ type VideoCardProps = {
   onToggleFavourite?: () => void;
   /** Thumbnail on the left and text on the right, for lists. */
   row?: boolean;
-  labels?: { watch?: (title: string) => string; add?: string; remove?: string };
+  labels?: { watch?: (title: string) => string; favourite?: (title: string) => string };
   className?: string;
 };
 
@@ -43,7 +43,8 @@ export function VideoCard({ title, meta, duration, href, linkAs: Link = 'a', thu
           variant="ghost"
           icon="heart"
           aria-pressed={favourite}
-          label={favourite ? (labels?.remove ?? 'Togli dai preferiti') : (labels?.add ?? 'Aggiungi ai preferiti')}
+          // One fixed name: the pressed state says whether it is a favourite, the title says which video.
+          label={labels?.favourite ? labels.favourite(title) : `Nei preferiti: ${title}`}
           onClick={onToggleFavourite}
         />
       ) : null}

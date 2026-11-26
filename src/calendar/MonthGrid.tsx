@@ -36,7 +36,7 @@ const MAX_DOTS = 3;
 export function MonthGrid({ label, cells, weekdays = WEEKDAYS, selected, onSelect, className }: MonthGridProps) {
   return (
     <div className={cx('pb-month', className)}>
-      <div className="pb-month__grid" role="grid" aria-label={label}>
+      <div className="pb-month__grid" role="group" aria-label={label}>
         {weekdays.map((weekday, index) => <span key={index} className="pb-month__dow" aria-hidden="true">{weekday}</span>)}
         {cells.map((cell) => (
           <button

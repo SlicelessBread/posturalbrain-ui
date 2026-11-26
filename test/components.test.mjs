@@ -67,6 +67,8 @@ test('Progress stays a drawable bar for values outside its scale', () => {
   assert.equal(value({ value: 3, max: 0 }), '0');
   for (const props of [{ value: NaN }, { value: 5, max: NaN }, { value: Infinity }, { value: 3, max: 0 }]) assert.doesNotMatch(html(ui.Progress, { label: 'x', ...props }), /NaN|Infinity/);
   assert.match(html(ui.Progress, { label: 'Rate incassate', value: 3, max: 3 }), /aria-valuemin="0" aria-valuemax="3" aria-valuenow="3"/);
+  assert.match(html(ui.Progress, { label: 'x', value: 1234, max: 5000 }), /aria-valuenow="1234" style="--value:0.25"/, 'the exact value is reported, only the bar is rounded');
+  assert.match(html(ui.Progress, { label: 'x', value: 150 }), /aria-valuenow="100"/);
   const unknown = html(ui.Progress, { label: 'Pubblicazione in corso' });
   assert.match(unknown, /class="pb-progress pb-progress--indeterminate" role="progressbar" aria-label="Pubblicazione in corso"/);
   assert.doesNotMatch(unknown, /aria-valuenow/);
@@ -136,15 +138,20 @@ test('a field with an error is marked invalid and its control points at the mess
   for (const Field of [ui.TextField, ui.DateField, ui.MoneyField, ui.Select]) {
     const out = html(Field, { label: 'Campo', error: 'Manca il valore', help: 'Aiuto' });
     assert.match(out, /^<label class="pb-field pb-field--invalid">/);
-    const id = /aria-invalid="true" aria-describedby="([^"]+)"/.exec(out)?.[1];
+    const id = /aria-describedby="([^"]+)" aria-invalid="true"/.exec(out)?.[1];
     assert.ok(id, 'control is not linked to a note');
     assert.ok(out.includes(`<span id="${id}" class="pb-field__error text-caption">`), 'the id does not belong to the error text');
     assert.doesNotMatch(out, /pb-field__help/, 'the error replaces the help');
   }
   const plain = html(ui.TextField, { label: 'Nome' });
-  assert.equal(plain, '<label class="pb-field"><span class="pb-field__label text-label">Nome</span><input type="text" class="pb-input"/></label>');
-  assert.match(html(ui.TextField, { label: 'Note', multiline: true, help: '64 di 2.200', helpNumeric: true }), /<textarea class="pb-input" aria-describedby="[^"]+"><\/textarea><span id="[^"]+" class="pb-field__help text-caption pb-num">/);
-  assert.match(html(ui.MoneyField, { label: 'Costo' }), /<input class="pb-input pb-num" type="text" inputMode="decimal" autoComplete="off"\/><span class="pb-input-group__suffix" aria-hidden="true">€<\/span>/i);
+  const [, labelId, named] = /^<label class="pb-field"><span id="([^"]+)" class="pb-field__label text-label">Nome<\/span><input type="text" class="pb-input" aria-labelledby="([^"]+)"\/><\/label>$/.exec(plain);
+  assert.equal(named, labelId, 'the control is named by the label text alone, not by the note under it');
+  // What the caller says about the control is kept: its own description is read too, and an error still wins.
+  const own = html(ui.TextField, { label: 'Nome', error: 'Manca', 'aria-describedby': 'altro', 'aria-invalid': false });
+  assert.match(own, /aria-describedby="altro [^" ]+" aria-invalid="true"/);
+  assert.match(html(ui.TextField, { label: 'Nome', 'aria-describedby': 'altro', 'aria-invalid': true }), /aria-describedby="altro" aria-invalid="true"/);
+  assert.match(html(ui.TextField, { label: 'Note', multiline: true, help: '64 di 2.200', helpNumeric: true }), /<textarea class="pb-input" aria-labelledby="[^"]+" aria-describedby="[^"]+"><\/textarea><span id="[^"]+" class="pb-field__help text-caption pb-num">/);
+  assert.match(html(ui.MoneyField, { label: 'Costo' }), /<input class="pb-input pb-num" type="text" inputMode="decimal" autoComplete="off" aria-labelledby="[^"]+"\/><span class="pb-input-group__suffix" aria-hidden="true">€<\/span>/i);
 });
 
 test('SearchField offers to clear only when it can and there is something to clear', () => {
@@ -186,10 +193,12 @@ test('calendar: a crowded day shows three dots, an empty day says so, empty week
   assert.equal(dots(['due', 'start', 'paid', 'end', 'post']), 3);
   assert.equal(dots(['due']), 1);
   assert.equal(dots(undefined), 0);
-  assert.match(html(ui.MonthGrid, { label: 'Vuoto', cells: [] }), /^<div class="pb-month"><div class="pb-month__grid" role="grid" aria-label="Vuoto">(<span class="pb-month__dow" aria-hidden="true">.<\/span>){7}<\/div><\/div>$/);
+  assert.match(html(ui.MonthGrid, { label: 'Vuoto', cells: [] }), /^<div class="pb-month"><div class="pb-month__grid" role="group" aria-label="Vuoto">(<span class="pb-month__dow" aria-hidden="true">.<\/span>){7}<\/div><\/div>$/);
   assert.equal(html(ui.WeekColumns, { days: [] }), '<div class="pb-week"><div class="pb-week__grid"></div></div>');
   assert.equal(html(ui.DayListDay, { date: 'Martedì 1 dicembre' }), '<section class="pb-daylist__day"><h3 class="pb-daylist__date text-caption">Martedì 1 dicembre</h3><p class="pb-daylist__empty text-label">Nessun evento</p></section>');
   assert.doesNotMatch(html(ui.DayListDay, { date: 'Lunedì' }, h(ui.EventChip, { kind: 'due', title: 'Rata' })), /pb-daylist__empty/);
+  // Conditional children that turn out empty are not events.
+  for (const nothing of [false, null, [false, null], []]) assert.match(html(ui.DayListDay, { date: 'Lunedì' }, nothing), /pb-daylist__empty/);
   const week = html(ui.WeekColumns, { selected: 'b', days: [{ id: 'a', weekday: 'Lun', day: 30, label: 'Lunedì', today: true }, { id: 'b', weekday: 'Mar', day: 1, label: 'Martedì', events: [{ kind: 'due', text: 'AC' }] }] });
   assert.match(week, /class="pb-week__day pb-week__day--today" aria-pressed="false" aria-label="Lunedì"/);
   assert.match(week, /class="pb-week__day" aria-pressed="true" aria-label="Martedì">.*<span class="pb-event pb-event--compact pb-event--due"><svg class="pb-icon pb-icon--sm"/);
@@ -212,6 +221,8 @@ test('UploadZone: the bar never passes its end, and each status shows its own pa
   assert.equal(bar(-0.2), '0');
   assert.match(html(ui.UploadZone, { status: 'uploading', title: 't', name: 'video.mp4' }), /pb-progress--indeterminate/);
   assert.doesNotMatch(html(ui.UploadZone, { status: 'done', title: 't', name: 'video.mp4' }), /pb-progress/);
+  assert.match(html(ui.UploadZone, { status: 'done', title: 't', name: 'video.mp4' }), /^<div class="pb-upload pb-upload--done" role="status">/);
+  assert.match(html(ui.UploadZone, { status: 'error', title: 't', name: 'Interrotto' }), /^<div class="pb-upload pb-upload--error" role="alert">/);
   assert.match(html(ui.UploadZone, { status: 'done', title: 't', name: 'video.mp4', detail: '780 MB' }), /class="text-label pb-muted pb-num">780 MB</);
   assert.match(html(ui.UploadZone, { status: 'error', title: 't', name: 'Interrotto', detail: 'Riprova più tardi.' }), /class="text-label pb-muted">Riprova/);
   const idle = html(ui.UploadZone, { status: 'idle', title: 'Scegli un video', hint: 'MP4 o MOV', accept: 'video/mp4' });
@@ -229,8 +240,8 @@ test('VideoPlayer: a real video replaces the placeholder; VideoCard states its f
   assert.match(html(ui.VideoPlayer, {}), /<button class="pb-player__play" type="button" aria-label="Riproduci">/);
   const fav = html(ui.VideoCard, { href: '/v/1', title: 'Mobilità', favourite: true });
   assert.match(fav, /<a class="pb-video-card__thumb" href="\/v\/1" aria-label="Guarda: Mobilità">/);
-  assert.match(fav, /class="pb-icon-btn pb-icon-btn--ghost pb-video-card__fav" aria-label="Togli dai preferiti" aria-pressed="true"/);
-  assert.match(html(ui.VideoCard, { href: '/v/1', title: 'Mobilità', favourite: false }), /aria-label="Aggiungi ai preferiti" aria-pressed="false"/);
+  assert.match(fav, /class="pb-icon-btn pb-icon-btn--ghost pb-video-card__fav" aria-label="Nei preferiti: Mobilità" aria-pressed="true"/);
+  assert.match(html(ui.VideoCard, { href: '/v/1', title: 'Mobilità', favourite: false }), /aria-label="Nei preferiti: Mobilità" aria-pressed="false"/);
   assert.doesNotMatch(html(ui.VideoCard, { href: '/v/1', title: 'Mobilità' }), /pb-video-card__fav/);
   assert.match(html(ui.VideoCard, { href: '/v/1', title: 'Mobilità', thumbnail: h('img', { src: '/t.jpg', alt: '' }) }), /aria-label="Guarda: Mobilità"><img src="\/t.jpg" alt=""\/><span class="pb-video-card__play"/);
 });
