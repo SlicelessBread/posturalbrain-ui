@@ -10,7 +10,7 @@ Il pacchetto non è su npm: si installa da GitHub, puntando a un'etichetta di ve
 
 ```json
 "dependencies": {
-  "posturalbrain-ui": "github:SlicelessBread/posturalbrain-ui#v0.0.1"
+  "posturalbrain-ui": "github:SlicelessBread/posturalbrain-ui#v0.1.0"
 }
 ```
 
@@ -128,7 +128,7 @@ Un'app in produzione punta sempre a una release (`#v0.0.2`). Per provare una mod
 Vercel e npm non potranno più scaricarlo senza credenziali. La via documentata da Vercel è un indirizzo con una chiave di sola lettura limitata a questo repository:
 
 ```json
-"posturalbrain-ui": "git+https://<utente>:<chiave>@github.com/SlicelessBread/posturalbrain-ui.git#v0.0.1"
+"posturalbrain-ui": "git+https://<utente>:<chiave>@github.com/SlicelessBread/posturalbrain-ui.git#v0.1.0"
 ```
 
 La chiave finisce così in `package.json` e nel file di blocco dell'app: chi legge quel repository può usarla. Per tenerla fuori dal codice l'alternativa è pubblicare il pacchetto su un registro privato e autenticarsi con `NPM_TOKEN`.
