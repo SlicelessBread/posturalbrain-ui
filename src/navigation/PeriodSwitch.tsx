@@ -15,12 +15,14 @@ type PeriodSwitchProps = {
   /** The week layout: label on the left and a button that returns to today. */
   week?: boolean;
   onToday?: () => void;
+  /** The period shown already holds today: the button stays in place, switched off. */
+  todayDisabled?: boolean;
   todayLabel?: string;
   className?: string;
 };
 
 /** Moves a screen from one month or week to the next. The new period is announced when it changes. */
-export function PeriodSwitch({ label, sublabel, prevLabel, nextLabel, onPrev, onNext, week, onToday, todayLabel = 'Oggi', className }: PeriodSwitchProps) {
+export function PeriodSwitch({ label, sublabel, prevLabel, nextLabel, onPrev, onNext, week, onToday, todayDisabled, todayLabel = 'Oggi', className }: PeriodSwitchProps) {
   return (
     <div className={cx('pb-period', week && 'pb-period--week', className)}>
       <IconButton variant="ghost" icon="chevron-left" label={prevLabel} onClick={onPrev} />
@@ -29,7 +31,7 @@ export function PeriodSwitch({ label, sublabel, prevLabel, nextLabel, onPrev, on
         {sublabel ? <span className="text-caption pb-subtle">{sublabel}</span> : null}
       </div>
       <IconButton variant="ghost" icon="chevron-right" label={nextLabel} onClick={onNext} />
-      {week ? <Button size="small" onClick={onToday}>{todayLabel}</Button> : null}
+      {week ? <Button size="small" onClick={onToday} disabled={todayDisabled}>{todayLabel}</Button> : null}
     </div>
   );
 }

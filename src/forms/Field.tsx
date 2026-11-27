@@ -4,6 +4,8 @@ import { Icon } from '../Icon';
 
 export type FieldProps = {
   label: ReactNode;
+  /** Keeps the label for assistive technology only: for a row of fields whose meaning is plain from what is around them. */
+  hideLabel?: boolean;
   /** A line of guidance under the control. */
   help?: ReactNode;
   /** Lines the help up as figures (a character count, an amount). */
@@ -23,12 +25,12 @@ type FieldShellProps = FieldProps & {
 type CallerAria = { 'aria-describedby'?: string; 'aria-invalid'?: boolean | 'true' | 'false' | 'grammar' | 'spelling' };
 
 /** Internal: what a field component hands to its `Field` shell and to its control (spread it after the caller's props). */
-export function useField({ label, help, helpNumeric, error }: FieldProps, caller: CallerAria = {}) {
+export function useField({ label, hideLabel, help, helpNumeric, error }: FieldProps, caller: CallerAria = {}) {
   const labelId = useId();
   const noteId = useId();
   const note = error || help ? noteId : undefined;
   return {
-    shell: { label, help, helpNumeric, error, labelId, noteId },
+    shell: { label, hideLabel, help, helpNumeric, error, labelId, noteId },
     control: {
       // Named by the label text alone: the <label> also wraps the note, which is the description.
       'aria-labelledby': labelId,
@@ -39,10 +41,10 @@ export function useField({ label, help, helpNumeric, error }: FieldProps, caller
 }
 
 /** Internal: the label, the control and its note, as one tap target. */
-export function Field({ label, help, helpNumeric, error, labelId, noteId, className, children }: FieldShellProps) {
+export function Field({ label, hideLabel, help, helpNumeric, error, labelId, noteId, className, children }: FieldShellProps) {
   return (
     <label className={cx('pb-field', error ? 'pb-field--invalid' : false, className)}>
-      <span id={labelId} className="pb-field__label text-label">{label}</span>
+      <span id={labelId} className={hideLabel ? 'pb-sr-only' : 'pb-field__label text-label'}>{label}</span>
       {children}
       {error ? (
         <span id={noteId} className="pb-field__error text-caption">

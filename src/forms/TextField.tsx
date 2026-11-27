@@ -5,8 +5,8 @@ type TextFieldProps = FieldProps &
   (({ /** More than one line of text. */ multiline?: false } & ComponentProps<'input'>) | ({ multiline: true } & ComponentProps<'textarea'>));
 
 /** A line of text, or several with `multiline`. `className` goes on the field; everything else on the control. */
-export function TextField({ label, help, helpNumeric, error, className, ...rest }: TextFieldProps) {
-  const { shell, control } = useField({ label, help, helpNumeric, error }, rest);
+export function TextField({ label, hideLabel, help, helpNumeric, error, className, ...rest }: TextFieldProps) {
+  const { shell, control } = useField({ label, hideLabel, help, helpNumeric, error }, rest);
   let input;
   if (rest.multiline) {
     const { multiline: _multiline, ...textarea } = rest;
