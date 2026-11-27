@@ -114,6 +114,7 @@ test('PageHeader and PeriodSwitch: optional parts appear only when given', () =>
   const month = html(ui.PeriodSwitch, { label: 'Novembre 2026', prevLabel: 'Mese precedente', nextLabel: 'Mese successivo' });
   assert.doesNotMatch(month, /pb-period--week|Oggi/);
   assert.match(html(ui.PeriodSwitch, { week: true, label: 'x', prevLabel: 'p', nextLabel: 'n' }), /class="pb-period pb-period--week".*<button type="button" class="pb-btn pb-btn--small">Oggi<\/button><\/div>$/);
+  assert.match(html(ui.PeriodSwitch, { week: true, todayDisabled: true, label: 'x', prevLabel: 'p', nextLabel: 'n' }), /<button type="button" class="pb-btn pb-btn--small" disabled="">Oggi<\/button><\/div>$/);
 });
 
 test('YearBars draws nothing it cannot measure: zeros, a loss, an empty year', () => {
@@ -132,6 +133,9 @@ test('StatCard is a button only when it can be pressed; ListRow is a link only w
   assert.match(pressed, /^<button type="button" class="pb-stat pb-stat--interactive">.*<span class="pb-stat__body">.*<\/span><svg class="pb-icon"[^>]*>.*<\/svg><\/button>$/);
   assert.doesNotMatch(pressed, /<div/);
   assert.match(html(ui.StatCard, { icon: 'wallet', label: 'Lordo', value: '6.480', tone: 'highlight' }), /^<div class="pb-stat pb-stat--highlight">.*<div class="pb-stat__body">.*class="pb-stat__value text-figure-lg pb-num"/);
+  // A loss on the highlighted card keeps the large figure and takes the danger colour; said twice, it is one class.
+  assert.match(html(ui.StatCard, { icon: 'wallet', label: 'Netto', value: '−412', tone: 'highlight', negative: true }), /^<div class="pb-stat pb-stat--highlight pb-stat--negative">.*class="pb-stat__value text-figure-lg pb-num"/);
+  assert.match(html(ui.StatCard, { icon: 'wallet', label: 'Netto', value: '−412', tone: 'negative', negative: true }), /^<div class="pb-stat pb-stat--negative">/);
   assert.equal(html(ui.ListRow, { title: 'Anna' }), '<li><div class="pb-list-row"><span class="pb-list-row__body"><span class="pb-list-row__title text-body-strong">Anna</span></span></div></li>');
   assert.match(html(ui.ListRow, { title: 'Anna', href: '/pazienti/1' }), /^<li><a class="pb-list-row" href="\/pazienti\/1">.*<span class="pb-list-row__trail"><svg/);
   assert.match(html(ui.Card, { href: '/x' }, 'Apri'), /^<a class="pb-card pb-card--interactive" href="\/x">Apri<\/a>$/);
@@ -161,6 +165,13 @@ test('a field with an error is marked invalid and its control points at the mess
   assert.match(own, /aria-describedby="altro [^" ]+" aria-invalid="true"/);
   assert.match(html(ui.TextField, { label: 'Nome', 'aria-describedby': 'altro', 'aria-invalid': true }), /aria-describedby="altro" aria-invalid="true"/);
   assert.match(html(ui.TextField, { label: 'Note', multiline: true, help: '64 di 2.200', helpNumeric: true }), /<textarea class="pb-input" aria-labelledby="[^"]+" aria-describedby="[^"]+"><\/textarea><span id="[^"]+" class="pb-field__help text-caption pb-num">/);
+  // A hidden label still names the control, and does not reach the control as an attribute.
+  for (const Field of [ui.TextField, ui.DateField, ui.MoneyField, ui.Select]) {
+    const out = html(Field, { label: 'Data rata 1', hideLabel: true });
+    const [, id] = /^<label class="pb-field"><span id="([^"]+)" class="pb-sr-only">Data rata 1<\/span>/.exec(out);
+    assert.ok(out.includes(`aria-labelledby="${id}"`), 'the control is not named by the hidden label');
+    assert.doesNotMatch(out, /hidelabel/i);
+  }
   assert.match(html(ui.MoneyField, { label: 'Costo' }), /<input class="pb-input pb-num" type="text" inputMode="decimal" autoComplete="off" aria-labelledby="[^"]+"\/><span class="pb-input-group__suffix" aria-hidden="true">€<\/span>/i);
 });
 

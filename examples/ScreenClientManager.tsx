@@ -11,6 +11,7 @@ export default function Example() {
       <TopBar brand="PosturalBrain" mark="activity">
         <IconButton variant="ghost" icon="eye" label="Nascondi le cifre" />
         <IconButton variant="ghost" icon="bell" label="Notifiche, 2 non lette" dot />
+        <IconButton variant="ghost" icon="settings" label="Impostazioni" />
       </TopBar>
       <Page>
         <PageHeader display title="Buongiorno, Marco" subtitle="Lunedì 30 novembre 2026" />

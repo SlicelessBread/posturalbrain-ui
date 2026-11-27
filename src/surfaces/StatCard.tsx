@@ -11,13 +11,15 @@ type StatCardProps = {
   hint?: ReactNode;
   /** `highlight`: the figure the screen is about, drawn larger (one per screen). `negative`: a loss. */
   tone?: 'highlight' | 'negative';
+  /** A loss, also on the highlighted card: the figure turns to the danger colour. */
+  negative?: boolean;
   /** With a handler the card is a button and shows a chevron. */
   onClick?: MouseEventHandler<HTMLButtonElement>;
   className?: string;
 };
 
 /** One figure with its label, an icon and a note. */
-export function StatCard({ icon, label, value, hint, tone, onClick, className }: StatCardProps) {
+export function StatCard({ icon, label, value, hint, tone, negative, onClick, className }: StatCardProps) {
   // Inside a <button> the body must be phrasing content.
   const Body = onClick ? 'span' : 'div';
   const content = (
@@ -30,7 +32,7 @@ export function StatCard({ icon, label, value, hint, tone, onClick, className }:
       </Body>
     </>
   );
-  const classes = cx('pb-stat', onClick && 'pb-stat--interactive', tone && `pb-stat--${tone}`, className);
+  const classes = cx('pb-stat', onClick && 'pb-stat--interactive', tone && `pb-stat--${tone}`, negative && tone !== 'negative' && 'pb-stat--negative', className);
   if (onClick) {
     return (
       <button type="button" className={classes} onClick={onClick}>

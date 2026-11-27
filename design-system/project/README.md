@@ -50,7 +50,7 @@ POSTURALBRAIN è il linguaggio visivo delle app dello studio: il Client Manager 
 
 - Ogni elemento toccabile misura almeno `--tap-min` (44 px) per lato, anche quando sembra più piccolo.
 - Il fuoco da tastiera è un anello pieno di 2 px in `--focus`. Non toglierlo.
-- Mentre i dati arrivano si mostrano le sagome di attesa nella forma della pagina, mai una schermata vuota.
+- Mentre i dati arrivano si mostrano le sagome di attesa nella forma della pagina, mai una schermata vuota. Se a schermo c'è già il periodo di prima (il mese precedente, mentre arriva quello scelto), resta lì attenuato con `pb-stale` finché non viene sostituito.
 
 ## Movimento
 

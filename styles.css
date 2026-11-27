@@ -296,6 +296,10 @@ html:has(> .pb-app) {
   white-space: nowrap;
 }
 
+/* What was on screen before, while what replaces it is on its way (the month before, as the next one loads).
+   Put `aria-busy="true"` on the same element. */
+.pb-stale { opacity: 0.5; }
+
 .pb-icon { flex: none; width: 24px; height: 24px; }
 .pb-icon--sm { width: 18px; height: 18px; }
 .pb-icon--lg { width: 32px; height: 32px; }
@@ -1073,9 +1077,14 @@ a.pb-list-row:focus-visible { outline-offset: -3px; }
 
 .pb-field {
   display: grid;
+  /* One column that can shrink: a control never pushes the field wider than the room it is given. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-1);
   min-width: 0;
 }
+
+/* Fields side by side in a row share its width. */
+.pb-row > .pb-field { flex: 1 1 0; }
 
 .pb-field__label { color: var(--text-2); }
 .pb-field__help { color: var(--text-3); letter-spacing: 0; font-weight: 500; }
@@ -1164,6 +1173,15 @@ textarea.pb-input { resize: vertical; }
 .pb-input-group__prefix + .pb-input { padding-left: var(--space-2); }
 .pb-input-group--search { border-radius: var(--radius-pill); }
 .pb-input-group--search > .pb-input::-webkit-search-cancel-button { display: none; }
+
+/* A date field too narrow for both gives the room of the calendar icon to the date: the whole field
+   opens the picker anyway. Only date groups are containers: a container has no width of its own. */
+.pb-input-group:has(> .pb-input[type="date"]) { container-type: inline-size; }
+
+@container (max-width: 168px) {
+  .pb-input-group > .pb-input[type="date"] { padding-inline: var(--space-3); }
+  .pb-input-group > .pb-input[type="date"] + .pb-input-group__suffix { display: none; }
+}
 
 /* The whole date field opens the system picker; our icon replaces the native one. */
 .pb-input-group > .pb-input[type="date"]::-webkit-calendar-picker-indicator {
