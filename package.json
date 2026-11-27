@@ -1,6 +1,6 @@
 {
   "name": "posturalbrain-ui",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "POSTURALBRAIN design system: tokens, styles and components shared by the apps",
