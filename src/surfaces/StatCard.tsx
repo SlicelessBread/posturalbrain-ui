@@ -9,7 +9,7 @@ type StatCardProps = {
   /** The figure, already formatted. */
   value: ReactNode;
   hint?: ReactNode;
-  /** `highlight`: the figure the screen is about, drawn larger (one per screen). `negative`: a loss. */
+  /** `highlight`: the figure the screen is about, drawn larger (one per screen). `negative`: a loss (the same as the `negative` prop). */
   tone?: 'highlight' | 'negative';
   /** A loss, also on the highlighted card: the figure turns to the danger colour. */
   negative?: boolean;
